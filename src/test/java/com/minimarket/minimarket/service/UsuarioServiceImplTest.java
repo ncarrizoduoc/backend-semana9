@@ -1,4 +1,4 @@
-package com.minimarket.minimarket;
+package com.minimarket.minimarket.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,14 +17,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import com.minimarket.minimarket.entity.Rol;
 import com.minimarket.minimarket.entity.Usuario;
 import com.minimarket.minimarket.repository.UsuarioRepository;
 import com.minimarket.minimarket.service.impl.UsuarioServiceImpl;
 
-@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class UsuarioServiceImplTest {
 

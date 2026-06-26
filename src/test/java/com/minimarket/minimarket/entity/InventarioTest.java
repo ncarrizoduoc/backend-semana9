@@ -1,16 +1,10 @@
-package com.minimarket.minimarket;
+package com.minimarket.minimarket.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import com.minimarket.minimarket.entity.Categoria;
-import com.minimarket.minimarket.entity.Inventario;
-import com.minimarket.minimarket.entity.Producto;
-
-@SpringBootTest
 public class InventarioTest {
 
     // Prueba que verifica que el producto asociado a un inventario sea correcto y que
