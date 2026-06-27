@@ -2,6 +2,9 @@ package com.minimarket.minimarket.controller;
 
 import com.minimarket.minimarket.entity.Producto;
 import com.minimarket.minimarket.service.ProductoService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +40,7 @@ public class ProductoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
+    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @Valid @RequestBody Producto producto) {
         sanitizarProducto(producto);
         Producto productoExistente = productoService.findById(id);
         if (productoExistente != null) {
