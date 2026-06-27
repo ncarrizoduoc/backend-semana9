@@ -1,10 +1,8 @@
 package com.minimarket.minimarket.controller;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -15,9 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.sql.Date;
@@ -29,9 +27,7 @@ import java.util.Set;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.minimarket.minimarket.entity.Categoria;
 import com.minimarket.minimarket.entity.DetalleVenta;
-import com.minimarket.minimarket.entity.Producto;
 import com.minimarket.minimarket.entity.Rol;
 import com.minimarket.minimarket.entity.Usuario;
 import com.minimarket.minimarket.entity.Venta;
@@ -41,7 +37,6 @@ import com.minimarket.minimarket.security.service.CustomUserDetailsService;
 import com.minimarket.minimarket.security.util.JwtUtil;
 import com.minimarket.minimarket.service.impl.VentaServiceImpl;
 
-import static org.mockito.MockitoAnnotations.openMocks;
 
 @WebMvcTest(VentaController.class)
 @Import(SecurityConfig.class)
@@ -117,7 +112,12 @@ public class VentaControllerTest {
     @WithMockUser(authorities = {"CAJERO"})
     public void usuarioCajeroNoPuedeRegistrarVentaInvalidaTest() throws Exception{
         // Arrange
-        String bodyInvalido = "{\"id\":}"; // String con body invalido (no corresponde a objeto Venta)
+        String bodyInvalido = """
+            {
+                "id": 9,
+                "usuario": "User"
+            }
+            """;
 
         mockMvc.perform(post("/api/ventas") // Se llama al endpoint [POST /api/ventas]
             .contentType(MediaType.APPLICATION_JSON)
@@ -125,13 +125,14 @@ public class VentaControllerTest {
             .andExpect(status().isBadRequest()); // Se espera un codigo 400 (Bad Request) como respuesta
     }
 
-    // Prueba que verifica que un usuario con rol ADMIN no pueda acceder al endpoint [POST /api/ventas]
-    // para registrar una venta, pues el endpoint solo admite usuarios con rol CAJERO
+    // Prueba que verifica que un usuario no autorizado (sin rol CAJERO) no pueda acceder
+    // al endpoint [POST /api/ventas] para registrar una venta, pues el endpoint solo admite
+    // usuarios con rol CAJERO
     @Test
     @WithMockUser(authorities = {"ADMIN"})
     public void usuarioNoAutorizadoNoPuedeGuardarVentaTest() throws Exception{
         mockMvc.perform(post("/api/ventas") // Se llama al endpoint [POST /api/ventas]
-            .contentType(MediaType.APPLICATION_JSON) // Se envia un body formato Json
+            .contentType(MediaType.APPLICATION_JSON)
             .content(new ObjectMapper().writeValueAsString(venta))) // El body contiene un objeto Venta valido
             .andExpect(status().isForbidden()); // Espera un Status 403 (prohibido)
     }
@@ -140,26 +141,61 @@ public class VentaControllerTest {
     // llamando al endpoint [GET /api/ventas]
     @Test
     @WithMockUser(authorities = {"CAJERO"})
-    public void cajeroPuedeVerVentaTest() throws Exception{
+    public void cajeroPuedeVerVentasTest() throws Exception{
         // Arrange
-        // Se crea una lista de ventas (con una venta)
         List<Venta> ventas = new ArrayList<Venta>(List.of(venta));
-        // Al llamar al ventaService, debe retorna la lista de ventas
         when(ventaService.findAll()).thenReturn(ventas);
 
         // Assert
         mockMvc.perform(get("/api/ventas")) // Se llama al endpoint [GET /api/ventas]
             .andExpect(status().isOk()) // Se espera un codigo 200 (OK)
-            .andExpect(jsonPath("$", hasSize(1))) // Se verifica que la lista de ventas tenga 1 elemento
+            .andExpect(jsonPath("$", hasSize(1))) // Se verifica que la lista de ventas retornada tenga 1 elemento
             .andExpect(jsonPath("$[0].id").value(Long.valueOf(1))); // Se verifica que el ID del primer elemento sea 1
     }
 
-    // Prueba que verifica que un usuario sin rol CAJERO no pueda ver el listado de ventas
-    // llamando al endpoint [GET /api/ventas], pues se necesita rol CAJERO
+    // Prueba que verifica que un usuario no autorizado (sin rol CAJERO) no pueda ver el listado de ventas
+    // llamando al endpoint [GET /api/ventas]
     @Test
     @WithMockUser(authorities = {"ADMIN"})
-    public void noCajeroNoPuedeVerVentaTest() throws Exception{
+    public void usuarioNoAutorizadoNoPuedeVerVentasTest() throws Exception{
         mockMvc.perform(get("/api/ventas")) // Se llama al endpoint [GET /api/ventas]
+            .andExpect(status().isForbidden()); // Se espera un codigo 403 (Forbidden)
+    }
+
+    // Prueba que verifica que si un usuario con rol CAJERO llama al endpoint [GET /api/ventas]
+    // para buscar una venta por ID, retorne la venta (cuando exista)
+    @Test
+    @WithMockUser(authorities = {"CAJERO"})
+    public void cajeroPuedeBuscarVentaExistentePorIdTest() throws Exception{
+        // Arrange
+        when(ventaService.findById(Long.valueOf(1))).thenReturn(venta);
+
+        // Act y Assert
+        mockMvc.perform(get("/api/ventas/{id}", Long.valueOf(1))) // Se llama al endpoint [GET /api/ventas/1]
+            .andExpect(status().isOk()) // Se espera un codigo 200 (OK)
+            .andExpect(jsonPath("$.id").value(Long.valueOf(1))); // Se verifica que el ID de la venta retornada sea 1
+    }
+
+    // Metodo que verifica que si un usuario con rol CAJERO llama al endpoint [GET /api/ventas]
+    // para buscar una venta por ID, y la venta no existe, recibe una respuesta vacia
+    @Test
+    @WithMockUser(authorities = {"CAJERO"})
+    public void BuscarVentaPorIdRetornaNullSiNoExisteTest() throws Exception{
+        // Arrange
+        when(ventaService.findById(Long.valueOf(1))).thenReturn(null);
+
+        // Act y Assert
+        mockMvc.perform(get("/api/ventas/{id}", Long.valueOf(1))) // Se llama al endpoint [GET /api/ventas/1]
+            .andExpect(status().isNotFound()) // Se espera un codigo 404 (NotFound)
+            .andExpect(content().string("")); // Se verifica que el body de la respuesta este vacio
+    }
+    
+    // Prueba que valida que un usuario no autorizado (sin rol CAJERO) no pueda acceder al 
+    // endpoint [GET /api/ventas]
+    @Test
+    @WithMockUser(authorities = {"ADMIN"})
+    public void usuarioNoAutorizadoNoPuedeBuscarVenta() throws Exception{
+        mockMvc.perform(get("/api/ventas/{id}", Long.valueOf(1))) // Se llama al endpoint [GET /api/ventas/1]
             .andExpect(status().isForbidden()); // Se espera un codigo 403 (Forbidden)
     }
 
