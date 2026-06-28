@@ -3,24 +3,41 @@ package com.minimarket.minimarket.entity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class InventarioTest {
 
-    // Prueba que verifica que el producto asociado a un inventario sea correcto y que
-    // los datos del producto sean correctos
-    @Test
-    public void ProductoAsociadoAInventarioEsCorrectoTest(){
-        // Arrange
-        Categoria categoria = new Categoria();
-        Producto producto = new Producto();
+    private Inventario inventario;
+    private Producto producto;
+    private Categoria categoria;
+
+    @BeforeEach
+    void setUp(){
+        categoria = new Categoria();
+        producto = new Producto();
         producto.setId(Long.valueOf(1));
         producto.setNombre("Arroz");
         producto.setPrecio(2000.0);
         producto.setStock(99);
         producto.setCategoria(categoria);
 
-        Inventario inventario = new Inventario();
+        inventario = new Inventario();
+    }
+
+    @AfterEach
+    void tearDown(){
+        inventario = null;
+        producto = null;
+        categoria = null;
+    }
+
+    // Prueba que verifica que el producto asociado a un inventario sea correcto y que
+    // los datos del producto sean correctos
+    @Test
+    public void ProductoAsociadoAInventarioEsCorrectoTest(){
+        // Arrange
         inventario.setProducto(producto);
 
         // Act
