@@ -3,19 +3,35 @@ package com.minimarket.minimarket.entity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class CarritoTest {
 
-    @Test
-    public void usuarioAsociadoACarritoEsCorrectoTest(){
-        // Arrange
-        Usuario usuario = new Usuario();
+    private Usuario usuario;
+    private Carrito carrito;
+
+    @BeforeEach
+    void SetUp(){
+        usuario = new Usuario();
         usuario.setId(Long.valueOf(99));
         usuario.setUsername("username");
         usuario.setPassword("password");
 
-        Carrito carrito = new Carrito();
+        carrito = new Carrito();
+    }
+
+    @AfterEach
+    void tearDown(){
+        usuario = null;
+        carrito = null;
+    }
+
+    // Prueba que verifica que el usuario asociado a un carrito sea correcto (tenga todos sus datos)
+    @Test
+    public void usuarioAsociadoACarritoEsCorrectoTest(){
+        // Arrange
         carrito.setUsuario(usuario);
 
         // Act
