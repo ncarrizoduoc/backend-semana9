@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -103,14 +104,15 @@ public class VentaControllerTest {
             .contentType(MediaType.APPLICATION_JSON) // Se envia un body formato Json
             .content(new ObjectMapper().writeValueAsString(venta))) // El body contiene un objeto Venta valido
             .andExpect(status().isOk()) // Verificar que retorna un status OK
-            .andExpect(jsonPath("$.id").value(Long.valueOf(1))); // Verificar que el ID de la venta sea el esperado
+            .andExpect(jsonPath("$.id").value(Long.valueOf(1))) // Verificar que el ID de la venta sea el esperado
+            .andExpect(jsonPath("$.detalles").value(detalles)); // Verificar que los detalles de venta sean los esperados
     }
 
     // Prueba que valida que al llamar al endpoint [POST /api/ventas] con un usuario valido, pero
     // un body invalido (no corresponde a una venta), retorne un codigo de status 400 (Bad Request) 
     @Test
     @WithMockUser(authorities = {"CAJERO"})
-    public void usuarioCajeroNoPuedeRegistrarVentaInvalidaTest() throws Exception{
+    public void cajeroNoPuedeRegistrarVentaInvalidaTest() throws Exception{
         // Arrange
         String bodyInvalido = """
             {
@@ -129,7 +131,7 @@ public class VentaControllerTest {
     // al endpoint [POST /api/ventas] para registrar una venta, pues el endpoint solo admite
     // usuarios con rol CAJERO
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
+    @WithAnonymousUser
     public void usuarioNoAutorizadoNoPuedeGuardarVentaTest() throws Exception{
         mockMvc.perform(post("/api/ventas") // Se llama al endpoint [POST /api/ventas]
             .contentType(MediaType.APPLICATION_JSON)
@@ -156,7 +158,7 @@ public class VentaControllerTest {
     // Prueba que verifica que un usuario no autorizado (sin rol CAJERO) no pueda ver el listado de ventas
     // llamando al endpoint [GET /api/ventas]
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
+    @WithAnonymousUser
     public void usuarioNoAutorizadoNoPuedeVerVentasTest() throws Exception{
         mockMvc.perform(get("/api/ventas")) // Se llama al endpoint [GET /api/ventas]
             .andExpect(status().isForbidden()); // Se espera un codigo 403 (Forbidden)
@@ -193,7 +195,7 @@ public class VentaControllerTest {
     // Prueba que valida que un usuario no autorizado (sin rol CAJERO) no pueda acceder al 
     // endpoint [GET /api/ventas]
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
+    @WithAnonymousUser
     public void usuarioNoAutorizadoNoPuedeBuscarVenta() throws Exception{
         mockMvc.perform(get("/api/ventas/{id}", Long.valueOf(1))) // Se llama al endpoint [GET /api/ventas/1]
             .andExpect(status().isForbidden()); // Se espera un codigo 403 (Forbidden)
