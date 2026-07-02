@@ -76,6 +76,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/ventas/**").hasAuthority(RolEnum.CAJERO.name()) //Solo el cajero puede gestionar ventas
                         .requestMatchers("/api/detalle-ventas/**").hasAuthority(RolEnum.CAJERO.name()) // Solo cajeros pueden ver o gestionar detalles de ventas
                         .requestMatchers("/api/carrito/**").hasAuthority(RolEnum.CLIENTE.name()) // Solo clientes pueden administrar el carrito
+                        .requestMatchers(
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**"
+                        ).permitAll() // Permitir acceso a Swagger con documentacion
                         .anyRequest().authenticated() // Requiere autenticación para el resto
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)) //Permitir carga de consola H2
