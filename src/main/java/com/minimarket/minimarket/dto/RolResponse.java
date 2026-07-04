@@ -2,6 +2,7 @@ package com.minimarket.minimarket.dto;
 
 import com.minimarket.minimarket.entity.Rol;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "DTO de respuesta para objetos Rol")
 public class RolResponse {
     private Long id;
     private String nombre;

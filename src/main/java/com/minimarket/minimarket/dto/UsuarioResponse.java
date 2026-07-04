@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.minimarket.minimarket.entity.Usuario;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,21 +17,21 @@ atributo password, correspondiente a la contrasena del usuario.
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "DTO de respuesta para objetos Usuario")
 public class UsuarioResponse {
+    @Schema(description = "ID del usuario")
     private Long id;
+    @Schema(description = "Nombre de usuario")
     private String username;
+    @Schema(description = "Rol(es) del usuario")
     private Set<String> roles;
 
-    // Metodo estatico para convertir Usuario a UsuarioResponse
-    static public UsuarioResponse toUsuarioResponse(Usuario usuario){
-        UsuarioResponse response = new UsuarioResponse();
-        response.setId(usuario.getId());
-        response.setUsername(usuario.getUsername());
-        response.setRoles(
-            usuario.getRoles().stream()
+    // Constructor a partir de usuario
+    public UsuarioResponse(Usuario usuario){
+        id = usuario.getId();
+        username = usuario.getUsername();
+        roles = usuario.getRoles().stream()
                 .map(rol -> rol.getNombre())
-                .collect(Collectors.toSet()));
-
-        return response;
+                .collect(Collectors.toSet());
     }
 }
