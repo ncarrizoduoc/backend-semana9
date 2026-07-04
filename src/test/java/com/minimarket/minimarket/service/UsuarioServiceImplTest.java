@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,21 +39,24 @@ public class UsuarioServiceImplTest {
 
     @BeforeEach
     void setUp(){
-        this.rol = new Rol();
-        rol.setId(Long.valueOf(1));
-        rol.setNombre("CLIENTE");
+        rol = Rol.builder()
+            .id(Long.valueOf(1))
+            .nombre("CLIENTE")
+            .usuarios(new HashSet<Usuario>())
+            .build();
 
-        this.usuario = new Usuario();
-        usuario.setId(Long.valueOf(1));
-        usuario.setUsername("usernamePrueba");
-        usuario.setPassword("passwordPrueba");
-        usuario.setRoles(Set.of(rol));
+        usuario = Usuario.builder()
+            .id(Long.valueOf(1))
+            .username("usernamePrueba")
+            .password("passwordPrueba")
+            .roles(Set.of(rol))
+            .build();
     }
 
     @AfterEach
     void tearDown(){
-        this.usuario = null;
-        this.rol = null;
+        usuario = null;
+        rol = null;
     }
 
     // Metodo que verifica que se guarde un usuario

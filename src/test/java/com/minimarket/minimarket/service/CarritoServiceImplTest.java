@@ -51,10 +51,34 @@ public class CarritoServiceImplTest {
 
     @BeforeEach
     void setUp(){
-        categoria = new Categoria(Long.valueOf(1), "Abarrotes", new ArrayList<Producto>());
-        producto = new Producto(Long.valueOf(1), "Arroz", 12990.0, 10, categoria);
-        usuario = new Usuario(Long.valueOf(1), "username", "password",new HashSet<Rol>());
-        carrito = new Carrito(Long.valueOf(1), usuario, producto, 1);
+        categoria = Categoria.builder()
+            .id(Long.valueOf(1))
+            .nombre("Abarrotes")
+            .productos(new ArrayList<Producto>())
+            .build();
+        
+        producto = Producto.builder()
+            .id(Long.valueOf(1))
+            .nombre("Arroz")
+            .precio(2690.0)
+            .stock(10)
+            .categoria(categoria)
+            .build();
+        
+        usuario = Usuario.builder()
+            .id(Long.valueOf(1))
+            .username("username")
+            .password("password")
+            .roles(new HashSet<Rol>())
+            .build();
+        
+        carrito = Carrito.builder()
+            .id(Long.valueOf(1))
+            .usuario(usuario)
+            .producto(producto)
+            .cantidad(1)
+            .build();
+        
     }
 
     @AfterEach

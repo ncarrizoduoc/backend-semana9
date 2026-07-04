@@ -8,8 +8,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashSet;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.minimarket.minimarket.entity.Rol;
 import com.minimarket.minimarket.entity.Usuario;
 import com.minimarket.minimarket.repository.UsuarioRepository;
 import com.minimarket.minimarket.security.service.CustomUserDetailsService;
@@ -31,6 +34,18 @@ public class CustomUserDetailsServiceTest {
     @InjectMocks
     private CustomUserDetailsService detailsService;
 
+    private Usuario usuario;
+
+    @BeforeEach
+    void setUp(){
+        usuario = Usuario.builder()
+            .id(Long.valueOf(1))
+            .username("username")
+            .password("password")
+            .roles(new HashSet<Rol>())
+            .build();
+
+    }
 
     // Prueba que verifica que el metodo loadByUsername() retorne un objeto
     // CustomUserDetails si el nombre de usuario ingresado en el intento de autenticacion
@@ -38,9 +53,6 @@ public class CustomUserDetailsServiceTest {
     @Test
     public void retornaCustomUserDetailsSiUsuarioExisteTest(){
         // Arrange
-        Usuario usuario = new Usuario();
-        usuario.setUsername("username");
-        usuario.setPassword("password");
         when(usuarioRepo.findByUsername(usuario.getUsername())).thenReturn(Optional.of(usuario));
 
         // Act
