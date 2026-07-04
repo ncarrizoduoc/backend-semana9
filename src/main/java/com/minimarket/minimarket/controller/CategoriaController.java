@@ -1,7 +1,14 @@
 package com.minimarket.minimarket.controller;
 
+import com.minimarket.minimarket.dto.CategoriaRequest;
+import com.minimarket.minimarket.dto.CategoriaResponse;
 import com.minimarket.minimarket.entity.Categoria;
 import com.minimarket.minimarket.service.CategoriaService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,30 +19,35 @@ import static com.minimarket.minimarket.security.util.InputSanitizer.*;
 
 @RestController
 @RequestMapping("/api/categorias")
+@Tag(name = "Categoria", description = "API para gestionar categorias en base de datos y realizar consultas.")
 public class CategoriaController {
 
     @Autowired
     private CategoriaService categoriaService;
 
     @GetMapping
-    public List<Categoria> listarCategorias() {
-        return categoriaService.findAll();
+    public List<CategoriaResponse> listarCategorias() {
+        return categoriaService.findAll().stream().map(CategoriaResponse::new).toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Categoria> obtenerCategoriaPorId(@PathVariable Long id) {
+    public ResponseEntity<CategoriaResponse> obtenerCategoriaPorId(@PathVariable Long id) {
         Categoria categoria = categoriaService.findById(id);
-        return (categoria != null) ? ResponseEntity.ok(categoria) : ResponseEntity.notFound().build();
+        return (categoria != null) ? ResponseEntity.ok(new CategoriaResponse(categoria)) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public Categoria guardarCategoria(@RequestBody Categoria categoria) {
+    @SecurityRequirement(name = "bearerAuth")
+    public CategoriaResponse guardarCategoria(@Valid @RequestBody CategoriaRequest request) {
+        Categoria categoria = request.toCategoria();
         sanitizarCategoria(categoria);
-        return categoriaService.save(categoria);
+        categoria.setId(null);
+        return new CategoriaResponse(categoriaService.save(categoria));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Long id, @RequestBody Categoria categoria) {
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Long id, @Valid @RequestBody Categoria categoria) {
         sanitizarCategoria(categoria);
         Categoria categoriaExistente = categoriaService.findById(id);
         if (categoriaExistente != null) {
@@ -46,6 +58,7 @@ public class CategoriaController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> eliminarCategoria(@PathVariable Long id) {
         Categoria categoria = categoriaService.findById(id);
         if (categoria != null) {
