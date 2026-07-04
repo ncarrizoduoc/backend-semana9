@@ -1,6 +1,8 @@
 package com.minimarket.minimarket.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,8 +30,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.minimarket.minimarket.dto.ProductoRequest;
+import com.minimarket.minimarket.dto.ProductoResponse;
 import com.minimarket.minimarket.entity.Categoria;
 import com.minimarket.minimarket.entity.Producto;
+import com.minimarket.minimarket.mapper.ProductoRequestMapper;
 import com.minimarket.minimarket.security.config.SecurityConfig;
 import com.minimarket.minimarket.security.monitor.SuspiciousActivityService;
 import com.minimarket.minimarket.security.service.CustomUserDetailsService;
@@ -42,6 +47,9 @@ public class ProductoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private ProductoRequestMapper requestMapper;
 
     @MockitoBean
     private ProductoServiceImpl productoService;
@@ -57,17 +65,20 @@ public class ProductoControllerTest {
 
     private Categoria categoria;
     private Producto producto;
+    private ProductoRequest request;
 
     @BeforeEach
     void setUp(){
         categoria = new Categoria(Long.valueOf(1), "Abarrotes", new ArrayList<Producto>());
-        producto = new Producto(Long.valueOf(1), "Arroz", 12990.0, 10, categoria);
+        producto = new Producto(Long.valueOf(1), "Arroz", 2690.0, 10, categoria);
+        request = new ProductoRequest(Long.valueOf(1), "Arroz", 2690.0, 10, Long.valueOf(1));
     }
 
     @AfterEach
     void tearDown(){
         categoria = null;
         producto = null;
+        request = null;
     }
 
     // Prueba que valida que un usuario autorizado (con rol ADMIN) pueda acceder al endpoint
@@ -76,16 +87,17 @@ public class ProductoControllerTest {
     @WithMockUser(authorities = {"ADMIN"})
     public void usuarioAutorizadoPuedeModificarProductoTest() throws Exception{
         // Arrange
-        when(productoService.findById(Long.valueOf(99))).thenReturn(new Producto());
+        when(productoService.findById(Long.valueOf(1))).thenReturn(producto);
         when(productoService.save(any(Producto.class))).thenAnswer(invocation -> {
             return invocation.getArgument(0);
         });
+        when(requestMapper.toProducto(request)).thenReturn(producto);
 
-        mockMvc.perform(put("/api/productos/{id}", Long.valueOf(99)) // Se llama al endpoint [PUT /api/productos/99]
+        mockMvc.perform(put("/api/productos/{id}", Long.valueOf(1)) // Se llama al endpoint [PUT /api/productos/99]
             .contentType(MediaType.APPLICATION_JSON) // Se envia un body formato Json
-            .content(new ObjectMapper().writeValueAsString(producto))) // El body contiene un objeto Producto valido
+            .content(new ObjectMapper().writeValueAsString(request))) // El body contiene un objeto Producto valido
             .andExpect(status().isOk()) // Se espera un codigo 200 (OK)
-            .andExpect(jsonPath("$.id").value(Long.valueOf(99))) // Se valida que el Producto retornado tenga ID 99
+            .andExpect(jsonPath("$.id").value(Long.valueOf(1))) // Se valida que el Producto retornado tenga ID 99
             .andExpect(jsonPath("$.nombre").value("Arroz")); // Se valida que el nombre del producto sea el esperado
     }
 
@@ -94,11 +106,11 @@ public class ProductoControllerTest {
     @Test
     @WithMockUser(authorities = {"ADMIN"}) 
     public void respondeNotFoundSiProductoModificadoNoExisteTest() throws Exception{
-        when(productoService.findById(Long.valueOf(99))).thenReturn(null);
+        when(productoService.findById(Long.valueOf(1))).thenReturn(null);
 
-        mockMvc.perform(put("/api/productos/{id}", Long.valueOf(99)) // Se llama al endpoint [PUT /api/productos/99]
+        mockMvc.perform(put("/api/productos/{id}", Long.valueOf(1)) // Se llama al endpoint [PUT /api/productos/99]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(producto)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isNotFound()); // Se espera un status Not Found
 
     }
@@ -109,9 +121,9 @@ public class ProductoControllerTest {
     @Test
     @WithAnonymousUser
     public void usuarioNoAutorizadoNoPuedeModificarProductoTest() throws Exception{
-        mockMvc.perform(put("/api/productos/{id}", Long.valueOf(99)) // Se llama al endpoint [PUT /api/productos/99]
+        mockMvc.perform(put("/api/productos/{id}", Long.valueOf(1)) // Se llama al endpoint [PUT /api/productos/99]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(producto)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isForbidden()); // Se espera un codigo 403 (Forbidden)
     }
 
@@ -170,14 +182,17 @@ public class ProductoControllerTest {
         when(productoService.save(any(Producto.class))).thenAnswer(invocation -> {
             return invocation.getArgument(0);
         });
+        when(requestMapper.toProducto(request)).thenReturn(producto);
 
         // Act y Assert
         mockMvc.perform(post("/api/productos") // Se llama al endpoint [POST /api/productos]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(producto)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isOk()) // Espera un codigo 200 (OK)
-            .andExpect(jsonPath("$.id").value(Long.valueOf(1))) // Valida el ID del producto retornado
-            .andExpect(jsonPath("$.nombre").value("Arroz")); // Valida el nombre del producto retornado
+            .andExpect(jsonPath("$.nombre").value("Arroz")) // Valida el nombre del producto retornado
+            .andExpect(jsonPath("$.precio").value(2690.0)); // Valida el nombre del producto retornado
+
+            verify(productoService, times(1)).save(producto);
 
     }
 
@@ -188,7 +203,7 @@ public class ProductoControllerTest {
     public void usuarioNoAutorizadoNoPuedeGuardarProductoTest() throws Exception{
         mockMvc.perform(post("/api/productos") // Se llama al endpoint [POST /api/productos]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(producto)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isForbidden()); // Espera un status Forbidden
     }
 
@@ -227,33 +242,33 @@ public class ProductoControllerTest {
     }
 
     // Prueba que valida que el endpoint [POST /api/productos] retorne Bad Request si el usuario adjunta
-    // un Producto no valido (que no cumple con las restricciones de datos implementadas en la clase
-    // Producto) en el body de la solicitud. Espera como respuesta un status Bad Request
+    // un ProductoRequest no valido (que no cumple con las restricciones de datos implementadas en la clase
+    // ProductoRequest) en el body de la solicitud. Espera como respuesta un status Bad Request
     // Se valida el correcto funcionamiento de la anotacion @Valid
     @Test
     @WithMockUser(authorities = {"ADMIN"})
     public void guardarProductoNoValidoLanzaErrorTest() throws Exception{
-        producto.setPrecio(-1.0); // Se asigna un numero negativo al precio (que no esta permitido)
+        request.setPrecio(-1.0); // Se asigna un numero negativo al precio (que no esta permitido)
 
         mockMvc.perform(post("/api/productos")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(producto)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isBadRequest()); // Se espera un status Bad Request
 
     }
 
     // Prueba que valida que el endpoint [PUT /api/productos] retorne Bad Request si el usuario adjunta
-    // un Producto no valido (que no cumple con las restricciones de datos implementadas en la clase
-    // Producto) en el body de la solicitud. Espera como respuesta un status Bad Request
+    // un ProductoRequest no valido (que no cumple con las restricciones de datos implementadas en la clase
+    // ProductoRequest) en el body de la solicitud. Espera como respuesta un status Bad Request
     // Se valida el correcto funcionamiento de la anotacion @Valid
     @Test
     @WithMockUser(authorities = {"ADMIN"})
     public void modificarProductoNoValidoLanzaErrorTest() throws Exception{
-        producto.setNombre(""); // Se asigna un nombre en blanco al precio (que no esta permitido)
+        request.setNombre(""); // Se asigna un nombre en blanco al precio (que no esta permitido)
 
         mockMvc.perform(put("/api/productos/{id}", Long.valueOf(1))
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(producto)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isBadRequest()); // Se espera un status Bad Request
 
     }
