@@ -1,7 +1,10 @@
 package com.minimarket.minimarket.controller;
 
+import com.minimarket.minimarket.dto.ProductoRequest;
+import com.minimarket.minimarket.dto.ProductoResponse;
 import com.minimarket.minimarket.entity.Producto;
 import com.minimarket.minimarket.exception.ErrorResponse;
+import com.minimarket.minimarket.mapper.ProductoRequestMapper;
 import com.minimarket.minimarket.openapi.dto.BadRequestResponse;
 import com.minimarket.minimarket.service.ProductoService;
 
@@ -11,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -31,6 +35,9 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
+    @Autowired
+    private ProductoRequestMapper requestMapper;
+
     @GetMapping
     @Operation(
         summary = "Listar todos los productos",
@@ -39,7 +46,7 @@ public class ProductoController {
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200", description = "Lista de productos obtenida exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Producto[].class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse[].class))
         ),
         @ApiResponse(
             responseCode = "403", description = "Prohibido",
@@ -51,9 +58,10 @@ public class ProductoController {
         )
         }
     )
-    public List<Producto> listarProductos() {
-        return productoService.findAll();
+    public List<ProductoResponse> listarProductos() {
+        return productoService.findAll().stream().map(ProductoResponse :: new).toList();
     }
+
 
     @GetMapping("/{id}")
     @Operation(
@@ -63,7 +71,7 @@ public class ProductoController {
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200", description = "Producto recuperado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Producto.class))
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class))
         ),
         @ApiResponse(
             responseCode = "400", description = "Solicitud incorrecta",
@@ -82,44 +90,134 @@ public class ProductoController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
         )}
     )
-    public ResponseEntity<Producto> obtenerProductoPorId(
+    public ResponseEntity<ProductoResponse> obtenerProductoPorId(
         @Parameter(description = "ID del producto buscado", required = true) @PathVariable @PositiveOrZero Long id
     ) {
         Producto producto = productoService.findById(id);
-        return (producto != null) ? ResponseEntity.ok(producto) : ResponseEntity.notFound().build();
+        return (producto != null) ? ResponseEntity.ok(new ProductoResponse(producto)) : ResponseEntity.notFound().build();
     }
+
 
     @PostMapping
     @Operation(
         summary = "Registrar producto",
         description = "Crea un producto y lo guarda en la base de datos. El acceso requiere rol ADMIN."
     )
-    public Producto guardarProducto(@Valid @RequestBody Producto producto) {
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", description = "Producto registrado exitosamente",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400", description = "Solicitud incorrecta",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "403", description = "Prohibido",
+            content = @Content(mediaType = "application/json", schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "404", description = "Categoria asociada a producto no encontrada",
+            content = @Content(mediaType = "application/json", schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "500", description = "Error interno del servidor",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        )}
+    )
+    public ProductoResponse guardarProducto(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Producto para guardar en base de datos", 
+            required = true
+        )
+        @Valid @RequestBody ProductoRequest request
+    ) {
+        Producto producto = requestMapper.toProducto(request);
+        producto.setId(null);
         sanitizarProducto(producto);
-        return productoService.save(producto);
+        return new ProductoResponse(productoService.save(producto));
     }
+
 
     @PutMapping("/{id}")
     @Operation(
-        summary = "Modificar datos de producto",
+        summary = "Actualizar datos de producto",
         description = "Modifica los datos del producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
     )
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @Valid @RequestBody Producto producto) {
-        sanitizarProducto(producto);
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", description = "Producto actualizado exitosamente",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400", description = "Solicitud incorrecta",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "403", description = "Prohibido",
+            content = @Content(mediaType = "application/json", schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "404", description = "Producto no encontrado o categoria no encontrada",
+            content = @Content(mediaType = "application/json", schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "500", description = "Error interno del servidor",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        )}
+    )
+    public ResponseEntity<ProductoResponse> actualizarProducto(
+        @Parameter(description = "ID del producto modificado", required = true) @PathVariable Long id,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Producto con datos actualizados", 
+            required = true
+        )
+        @Valid @RequestBody ProductoRequest request
+    ) {
         Producto productoExistente = productoService.findById(id);
         if (productoExistente != null) {
+            Producto producto = requestMapper.toProducto(request);
             producto.setId(id);
-            return ResponseEntity.ok(productoService.save(producto));
+            sanitizarProducto(producto);
+            return ResponseEntity.ok(new ProductoResponse(productoService.save(producto)));
         }
         return ResponseEntity.notFound().build();
     }
+
 
     @DeleteMapping("/{id}")
     @Operation(
         summary = "Eliminar producto",
         description = "Elimina el producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
     )
-    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "204", description = "Producto eliminado exitosamente (No content)",
+            content = @Content(mediaType = "application/json", schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "400", description = "Solicitud incorrecta",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "403", description = "Prohibido",
+            content = @Content(mediaType = "application/json", schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "404", description = "Producto no encontrado",
+            content = @Content(mediaType = "application/json", schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "500", description = "Error interno del servidor",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        )}
+    )
+    public ResponseEntity<Void> eliminarProducto(
+        @Parameter(description = "ID del producto que se desea eliminar", required = true) @PathVariable Long id
+    ) {
         Producto producto = productoService.findById(id);
         if (producto != null) {
             productoService.deleteById(id);
@@ -127,6 +225,7 @@ public class ProductoController {
         }
         return ResponseEntity.notFound().build();
     }
+
 
     private void sanitizarProducto(Producto producto){
         producto.setNombre(sanitizeInput(producto.getNombre()));
