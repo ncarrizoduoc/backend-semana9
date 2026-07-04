@@ -29,7 +29,7 @@ public class UsuarioController {
         List<Usuario> usuarios = usuarioService.findAll();
         return usuarios
             .stream()
-            .map(usuario -> UsuarioResponse.toUsuarioResponse(usuario))
+            .map(UsuarioResponse :: new)
             .collect(Collectors.toList());
         
     }
@@ -39,7 +39,7 @@ public class UsuarioController {
         Optional<Usuario> usuario = usuarioService.findById(id);
         UsuarioResponse usuarioResponse;
         if (!usuario.isEmpty()){
-            usuarioResponse = UsuarioResponse.toUsuarioResponse(usuario.get());
+            usuarioResponse = new UsuarioResponse(usuario.get());
             return ResponseEntity.ok(usuarioResponse);
         }
         return ResponseEntity.notFound().build();
@@ -50,7 +50,7 @@ public class UsuarioController {
         sanitizarUsuario(usuario); //Sanitizar input de cliente
         usuario.setId(null);
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // Encriptar contrasena
-        return UsuarioResponse.toUsuarioResponse(usuarioService.save(usuario));
+        return new UsuarioResponse(usuarioService.save(usuario));
     }
 
     @PutMapping("/{id}")
@@ -60,7 +60,7 @@ public class UsuarioController {
         if (usuarioExistente.isPresent()) {
             usuario.setId(id);
             usuario.setPassword(passwordEncoder.encode(usuario.getPassword())); // Encriptar contrasena
-            return ResponseEntity.ok(UsuarioResponse.toUsuarioResponse(usuarioService.save(usuario)));
+            return ResponseEntity.ok(new UsuarioResponse(usuarioService.save(usuario)));
         }
         return ResponseEntity.notFound().build();
     }
