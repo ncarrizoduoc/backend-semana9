@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +24,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.minimarket.minimarket.entity.Carrito;
+import com.minimarket.minimarket.entity.Categoria;
 import com.minimarket.minimarket.entity.Producto;
+import com.minimarket.minimarket.entity.Rol;
 import com.minimarket.minimarket.entity.Usuario;
 import com.minimarket.minimarket.exception.StockInsuficienteException;
 import com.minimarket.minimarket.repository.CarritoRepository;
+import com.minimarket.minimarket.repository.ProductoRepository;
 import com.minimarket.minimarket.service.impl.CarritoServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,32 +39,37 @@ public class CarritoServiceImplTest {
     @Mock
     private CarritoRepository carritoRepo;
 
+    @Mock private ProductoRepository productoRepo;
+
     @InjectMocks
     private CarritoServiceImpl carritoService;
 
     private Carrito carrito;
+    private Producto producto;
+    private Categoria categoria;
+    private Usuario usuario;
 
     @BeforeEach
     void setUp(){
-        carrito = new Carrito();
-        carrito.setId(Long.valueOf(1));
+        categoria = new Categoria(Long.valueOf(1), "Abarrotes", new ArrayList<Producto>());
+        producto = new Producto(Long.valueOf(1), "Arroz", 12990.0, 10, categoria);
+        usuario = new Usuario(Long.valueOf(1), "username", "password",new HashSet<Rol>());
+        carrito = new Carrito(Long.valueOf(1), usuario, producto, 1);
     }
 
     @AfterEach
     void tearDown(){
         carrito = null;
+        usuario = null;
+        producto = null;
+        categoria = null;
     }
 
     // Prueba que verifica que CarritoServiceImpl guarda un carrito correctamente 
     // El stock del producto debe ser mayor a la cantidad agregada
     @Test
     public void agregarCarritoValidoTest(){
-        // Arrange
-        Producto producto = new Producto();
-        producto.setNombre("Arroz");
-        producto.setStock(10);
-
-        carrito.setProducto(producto);
+        carrito.getProducto().setStock(10);
         carrito.setCantidad(1);
 
         when(carritoRepo.save(any(Carrito.class))).thenAnswer(invocation ->{
@@ -80,14 +89,9 @@ public class CarritoServiceImplTest {
     // Carrito con un producto con stock insuficiente
     @Test
     public void stockInsuficienteLanzaExcepcionTest(){
-        // Arrange
-        Producto producto = new Producto();
-        producto.setNombre("Arroz");
-        producto.setStock(10);
-
-        carrito.setProducto(producto);
-        carrito.setCantidad(20);
-
+        carrito.getProducto().setStock(1);
+        carrito.setCantidad(10);
+        
         // Assert
         assertThrows(StockInsuficienteException.class, () -> {
             carritoService.save(carrito);  
