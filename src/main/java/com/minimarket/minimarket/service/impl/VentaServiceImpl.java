@@ -4,7 +4,6 @@ import com.minimarket.minimarket.entity.DetalleVenta;
 import com.minimarket.minimarket.entity.Producto;
 import com.minimarket.minimarket.entity.Venta;
 import com.minimarket.minimarket.exception.StockInsuficienteException;
-import com.minimarket.minimarket.repository.ProductoRepository;
 import com.minimarket.minimarket.repository.VentaRepository;
 import com.minimarket.minimarket.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;

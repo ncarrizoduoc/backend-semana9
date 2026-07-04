@@ -11,9 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.minimarket.minimarket.repository.CarritoRepository;
 import com.minimarket.minimarket.repository.CategoriaRepository;
-import com.minimarket.minimarket.repository.ProductoRepository;
 import com.minimarket.minimarket.repository.RolRepository;
 import com.minimarket.minimarket.repository.UsuarioRepository;
 import com.minimarket.minimarket.entity.Categoria;
@@ -34,12 +32,6 @@ public class DataInitializer implements ApplicationRunner{
 
     @Autowired
     private CategoriaRepository categoriaRepo;
-
-    @Autowired
-    private ProductoRepository productoRepo;
-
-    @Autowired
-    private CarritoRepository carritoRepo;
 
     @Override
     public void run(ApplicationArguments args) throws Exception{

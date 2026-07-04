@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minimarket.minimarket.dto.ProductoRequest;
-import com.minimarket.minimarket.dto.ProductoResponse;
 import com.minimarket.minimarket.entity.Categoria;
 import com.minimarket.minimarket.entity.Producto;
 import com.minimarket.minimarket.mapper.ProductoRequestMapper;
