@@ -10,4 +10,6 @@ public interface CarritoService {
     Carrito save(Carrito carrito);
     void deleteById(Long id);
     List<Carrito> findByUsuarioId(Long usuarioId);
+
+    Carrito update(Carrito carrito);
 }
