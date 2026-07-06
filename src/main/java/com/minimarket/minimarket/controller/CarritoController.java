@@ -9,6 +9,7 @@ import com.minimarket.minimarket.openapi.dto.BadRequestResponse;
 import com.minimarket.minimarket.service.CarritoService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -86,7 +87,9 @@ public class CarritoController {
         )}
     )
     @GetMapping("/{id}")
-    public ResponseEntity<CarritoResponse> obtenerCarritoPorId(@PathVariable Long id) {
+    public ResponseEntity<CarritoResponse> obtenerCarritoPorId(
+        @Parameter(description = "ID del carrito buscado", required = true) @PathVariable Long id
+    ) {
         Carrito carrito = carritoService.findById(id);
         return (carrito != null) ? ResponseEntity.ok(new CarritoResponse(carrito)) : ResponseEntity.notFound().build();
     }
@@ -118,7 +121,13 @@ public class CarritoController {
         )}
     )
     @PostMapping
-    public CarritoResponse agregarProductoAlCarrito(@Valid @RequestBody CarritoRequest request) {
+    public CarritoResponse agregarProductoAlCarrito(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Carrito para guardar en base de datos",
+            required = true
+        )
+        @Valid @RequestBody CarritoRequest request
+    ) {
         Carrito carrito = requestMapper.toCarrito(request);
         carrito.setId(null);
         return new CarritoResponse(carritoService.save(carrito));
@@ -151,7 +160,14 @@ public class CarritoController {
         )}
     )
     @PutMapping("/{id}")
-    public ResponseEntity<CarritoResponse> actualizarCarrito(@PathVariable Long id, @Valid @RequestBody CarritoRequest request) {
+    public ResponseEntity<CarritoResponse> actualizarCarrito(
+        @Parameter(description = "ID del carrito modificado", required = true) @PathVariable Long id,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Datos actualizados de carrito",
+            required = true
+        )
+        @Valid @RequestBody CarritoRequest request
+    ) {
         Carrito existente = carritoService.findById(id);
         if (existente != null) {
             Carrito carrito = requestMapper.toCarrito(request);
@@ -188,7 +204,8 @@ public class CarritoController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
         )}
     )
-    public ResponseEntity<Void> eliminarProductoDelCarrito(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarProductoDelCarrito(
+        @Parameter(description = "ID del carrito que se desea eliminar", required = true) @PathVariable Long id) {
         Carrito carrito = carritoService.findById(id);
         if (carrito != null) {
             carritoService.deleteById(id);
