@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.minimarket.minimarket.repository.CategoriaRepository;
+import com.minimarket.minimarket.repository.ProductoRepository;
 import com.minimarket.minimarket.repository.RolRepository;
 import com.minimarket.minimarket.repository.UsuarioRepository;
 import com.minimarket.minimarket.entity.Categoria;
@@ -33,6 +34,9 @@ public class DataInitializer implements ApplicationRunner{
     @Autowired
     private CategoriaRepository categoriaRepo;
 
+    @Autowired
+    private ProductoRepository productoRepo;
+
     @Override
     public void run(ApplicationArguments args) throws Exception{
 
@@ -40,16 +44,17 @@ public class DataInitializer implements ApplicationRunner{
         for (RolEnum rolEnum : RolEnum.values()){
             if (rolRepo.findByNombre(rolEnum.name()).isEmpty()){
                 // Crear rol y guardarlo en la base de datos
-                Rol rol = new Rol();
-                rol.setNombre(rolEnum.name());
+                Rol rol = Rol.builder()
+                    .nombre(rolEnum.name())
+                    .build();
                 rolRepo.save(rol);
 
                 // Se crea un usuario con el rol y se guarda en la base de datos
-                Usuario usuario = new Usuario();
-                usuario.setUsername(rol.getNombre().toLowerCase());
-                usuario.setPassword(passwordEncoder.encode(rol.getNombre().toLowerCase() + "123"));
-                Set<Rol> roles = new HashSet<Rol>(Arrays.asList(rol));
-                usuario.setRoles(roles);
+                Usuario usuario = Usuario.builder()
+                    .username(rol.getNombre().toLowerCase())
+                    .password(passwordEncoder.encode(rol.getNombre().toLowerCase() + "123"))
+                    .roles(new HashSet<Rol>(Arrays.asList(rol)))
+                    .build();
                 usuarioRepo.save(usuario);
             }
 
@@ -57,8 +62,24 @@ public class DataInitializer implements ApplicationRunner{
 
         // Categoria de ejemplo para facilitar pruebas de endpoints de ProductoController
         if (categoriaRepo.findAll().isEmpty()){
-            Categoria categoria = new Categoria(null, "Abbarrotes", new ArrayList<Producto>());
+            Categoria categoria = Categoria.builder()
+                .id(null)
+                .nombre("Abarrotes")
+                .productos(new ArrayList<Producto>())
+                .build();
             categoriaRepo.save(categoria);
+            
+            // Se crea tambien un producto para facilitar pruebas de InventarioController y CarritoController
+            if (productoRepo.findAll().isEmpty()){
+                Producto producto = Producto.builder()
+                    .id(null)
+                    .nombre("Arroz")
+                    .precio(2690.0)
+                    .stock(10)
+                    .categoria(categoria)
+                    .build();
+                productoRepo.save(producto);
+            }
         }
 
     }
