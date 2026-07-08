@@ -133,9 +133,9 @@ public class ProductoController {
         )
         @Valid @RequestBody ProductoRequest request
     ) {
+        sanitizarProducto(request);
         Producto producto = requestMapper.toProducto(request);
         producto.setId(null);
-        sanitizarProducto(producto);
         return new ProductoResponse(productoService.save(producto));
     }
 
@@ -176,11 +176,11 @@ public class ProductoController {
         )
         @Valid @RequestBody ProductoRequest request
     ) {
+        sanitizarProducto(request);
         Producto productoExistente = productoService.findById(id);
         if (productoExistente != null) {
             Producto producto = requestMapper.toProducto(request);
             producto.setId(id);
-            sanitizarProducto(producto);
             return ResponseEntity.ok(new ProductoResponse(productoService.save(producto)));
         }
         return ResponseEntity.notFound().build();
@@ -227,7 +227,7 @@ public class ProductoController {
     }
 
 
-    private void sanitizarProducto(Producto producto){
+    private void sanitizarProducto(ProductoRequest producto){
         producto.setNombre(sanitizeInput(producto.getNombre()));
     }
 }
