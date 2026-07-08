@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // Todos pueden ver los productos o buscar por ID
                         .requestMatchers("/api/productos/**").hasAuthority(RolEnum.ADMIN.name()) // Solo administradores pueden crear, editar o eliminar productos
                         .requestMatchers("/api/usuarios/**").hasAuthority(RolEnum.ADMIN.name()) // Solo administradores pueden realizar operaciones CRUD sobre usuarios
-                        .requestMatchers("/api/inventario/**").hasAuthority(RolEnum.CAJERO.name()) // Solo cajeros pueden realizar operaciones sobre el inventario
+                        .requestMatchers("/api/inventario/**").hasAnyAuthority(RolEnum.CAJERO.name(), RolEnum.ADMIN.name()) // Solo administradores pueden realizar operaciones sobre el inventario
                         .requestMatchers(HttpMethod.GET, "/api/categorias/**").permitAll() // Todos pueden ver las categorias de productos
                         .requestMatchers("/api/categorias/**").hasAuthority(RolEnum.ADMIN.name()) // Solo administradores pueden crear, modificar o eliminar categorias
                         .requestMatchers("/api/ventas/**").hasAuthority(RolEnum.CAJERO.name()) //Solo el cajero puede gestionar ventas
