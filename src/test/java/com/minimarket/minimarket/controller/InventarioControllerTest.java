@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.hasSize;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,14 +27,20 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.minimarket.minimarket.dto.InventarioRequest;
 import com.minimarket.minimarket.entity.Categoria;
 import com.minimarket.minimarket.entity.Inventario;
 import com.minimarket.minimarket.entity.Producto;
+import com.minimarket.minimarket.mapper.InventarioRequestMapper;
 import com.minimarket.minimarket.security.config.SecurityConfig;
 import com.minimarket.minimarket.security.monitor.SuspiciousActivityService;
 import com.minimarket.minimarket.security.service.CustomUserDetailsService;
 import com.minimarket.minimarket.security.util.JwtUtil;
 import com.minimarket.minimarket.service.impl.InventarioServiceImpl;
+
+import java.util.Date;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(InventarioController.class)
 @Import(SecurityConfig.class)
@@ -43,6 +48,9 @@ public class InventarioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private InventarioRequestMapper requestMapper;
 
     @MockitoBean
     private InventarioServiceImpl inventarioService;
@@ -59,20 +67,47 @@ public class InventarioControllerTest {
     // Declaracion de objetos
     private Categoria categoria;
     private Producto producto;
+    private InventarioRequest request;
     private Inventario inventario;
 
     @BeforeEach
     void setUp(){
-        categoria = new Categoria(Long.valueOf(1), "Abarrotes", new ArrayList<Producto>());
-        producto = new Producto(Long.valueOf(1), "Arroz", 12990.0, 10, categoria);
-        inventario = new Inventario(Long.valueOf(1), producto, 10, "Entrada",
-            Date.valueOf("2026-12-30"));
+        categoria = Categoria.builder()
+            .id(Long.valueOf(1))
+            .nombre("Abarrotes")
+            .productos(new ArrayList<Producto>())
+            .build();
+        
+        producto = Producto.builder()
+            .id(Long.valueOf(1))
+            .nombre("Arroz")
+            .precio(2690.0)
+            .stock(10)
+            .categoria(categoria)
+            .build();
+        
+        request = InventarioRequest.builder()
+            .id(Long.valueOf(1))
+            .productoId(Long.valueOf(1))
+            .cantidad(5)
+            .tipoMovimiento("Entrada")
+            .fechaMovimiento(new Date())
+            .build();
+
+        inventario = Inventario.builder()
+            .id(Long.valueOf(1))
+            .producto(producto)
+            .cantidad(5)
+            .tipoMovimiento("Entrada")
+            .fechaMovimiento(new Date())
+            .build();
     }
 
     @AfterEach
     void tearDown(){
         categoria = null;
         producto = null;
+        request = null;
         inventario = null;
     }
 
@@ -82,17 +117,19 @@ public class InventarioControllerTest {
     @WithMockUser(authorities = {"CAJERO"})
     public void usuarioAutorizadoPuedeModificarInventarioTest() throws Exception{
         // Arrange
-        when(inventarioService.findById(Long.valueOf(99))).thenReturn(new Inventario());
-        when(inventarioService.save(any(Inventario.class))).thenAnswer(invocation -> {
+        when(inventarioService.findById(any(Long.class))).thenReturn(inventario);
+        when(inventarioService.update(any(Inventario.class))).thenAnswer(invocation -> {
             return invocation.getArgument(0);
         });
+        when(requestMapper.toInventario(any(InventarioRequest.class))).thenReturn(inventario);
 
-        mockMvc.perform(put("/api/inventario/{id}", Long.valueOf(99)) // Se llama al endpoint [PUT /api/inventario/99]
+        mockMvc.perform(put("/api/inventario/{id}", Long.valueOf(1)) // Se llama al endpoint [PUT /api/inventario/99]
             .contentType(MediaType.APPLICATION_JSON) // Se envia un body formato Json
-            .content(new ObjectMapper().writeValueAsString(inventario))) // El body contiene un objeto Inventario valido
+            .content(new ObjectMapper().writeValueAsString(request))) // El body contiene un objeto Inventario valido
             .andExpect(status().isOk()) // Se espera un codigo 200 (OK)
-            .andExpect(jsonPath("$.id").value(Long.valueOf(99))) // Valida que el inventario retornado tenga ID 99
-            .andExpect(jsonPath("$.tipoMovimiento").value("Entrada")); // Valida que el nombre del inventario sea el esperado
+            .andExpect(jsonPath("$.id").value(Long.valueOf(1))) // Valida que el inventario retornado tenga ID 99
+            .andExpect(jsonPath("$.tipoMovimiento").value("Entrada")) // Valida que tipo de movimiento sea el esperado
+            .andDo(print());
     }
 
     // Prueba que valida que un usuario autorizado (con rol CAJERO) llama al endpoint [PUT /api/inventario/{id}]
@@ -104,7 +141,7 @@ public class InventarioControllerTest {
 
         mockMvc.perform(put("/api/inventario/{id}", Long.valueOf(99)) // Se llama al endpoint [PUT /api/inventario/99]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(inventario)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isNotFound()); // Se espera un status Not Found
 
     }
@@ -117,7 +154,7 @@ public class InventarioControllerTest {
     public void usuarioNoAutorizadoNoPuedeModificarInventarioTest() throws Exception{
         mockMvc.perform(put("/api/inventario/{id}", Long.valueOf(99)) // Se llama al endpoint [PUT /api/inventario/99]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(inventario)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isForbidden()); // Se espera un codigo 403 (Forbidden)
     }
 
@@ -185,14 +222,15 @@ public class InventarioControllerTest {
         when(inventarioService.save(any(Inventario.class))).thenAnswer(invocation -> {
             return invocation.getArgument(0);
         });
+        when(requestMapper.toInventario(any(InventarioRequest.class))).thenReturn(inventario);
 
         // Act y Assert
         mockMvc.perform(post("/api/inventario") // Se llama al endpoint [POST /api/inventario]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(inventario)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isOk()) // Espera un codigo 200 (OK)
-            .andExpect(jsonPath("$.id").value(Long.valueOf(1))) // Valida el ID del inventario retornado
-            .andExpect(jsonPath("$.tipoMovimiento").value("Entrada")); // Valida el nombre del inventario retornado
+            .andExpect(jsonPath("$.tipoMovimiento").value("Entrada")) // Valida el nombre del inventario retornado
+            .andExpect(jsonPath("$.cantidad").value(5)); // Valida la cantidad del inventario retornado
 
     }
 
@@ -203,7 +241,7 @@ public class InventarioControllerTest {
     public void usuarioNoAutorizadoNoPuedeGuardarInventarioTest() throws Exception{
         mockMvc.perform(post("/api/inventario") // Se llama al endpoint [POST /api/inventario]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(inventario)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isForbidden()); // Espera un status Forbidden
     }
 
@@ -248,11 +286,11 @@ public class InventarioControllerTest {
     @Test
     @WithMockUser(authorities = {"CAJERO"})
     public void guardarInventarioNoValidoLanzaErrorTest() throws Exception{
-        inventario.setTipoMovimiento("Movimiento no valido"); // Se asigna un tipo de movimiento no permitido
+        request.setTipoMovimiento("Movimiento no valido"); // Se asigna un tipo de movimiento no permitido
 
         mockMvc.perform(post("/api/inventario")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(inventario)))
+            .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isBadRequest()); // Se espera un status Bad Request
 
     }
@@ -263,7 +301,7 @@ public class InventarioControllerTest {
     @Test
     @WithMockUser(authorities = {"CAJERO"})
     public void modificarInventarioNoValidoLanzaErrorTest() throws Exception{
-        inventario.setCantidad(-2); // Se asigna una cantidad negativa (que no esta permitido)
+        request.setCantidad(-2); // Se asigna una cantidad negativa (que no esta permitido)
 
         mockMvc.perform(put("/api/inventario/{id}", Long.valueOf(1))
             .contentType(MediaType.APPLICATION_JSON)
