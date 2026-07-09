@@ -39,7 +39,8 @@ public class CarritoController {
     @GetMapping
     @Operation(
         summary = "Listar todos los carritos",
-        description = "Retorna la lista completa de carritos en la base de datos. El acceso requiere rol ADMIN."
+        description = "Retorna la lista completa de carritos en la base de datos. "
+            + "El acceso requiere rol ADMIN o CLIENTE."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -60,9 +61,11 @@ public class CarritoController {
         return carritoService.findAll().stream().map(CarritoResponse::new).toList();
     }
 
+    @GetMapping("/{id}")
     @Operation(
         summary = "Buscar carrito por ID",
-        description = "Busca un carrito en la base de datos por su ID y retorna sus datos. El acceso requiere rol ADMIN."
+        description = "Busca un carrito en la base de datos por su ID y retorna sus datos. "
+            + "El acceso requiere rol ADMIN o CLIENTE."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -86,7 +89,6 @@ public class CarritoController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
         )}
     )
-    @GetMapping("/{id}")
     public ResponseEntity<CarritoResponse> obtenerCarritoPorId(
         @Parameter(description = "ID del carrito buscado", required = true) @PathVariable Long id
     ) {
@@ -94,9 +96,11 @@ public class CarritoController {
         return (carrito != null) ? ResponseEntity.ok(new CarritoResponse(carrito)) : ResponseEntity.notFound().build();
     }
 
+    @PostMapping
     @Operation(
-        summary = "Registrar carrito",
-        description = "Crea un carrito (con usuario y producto asociado) y lo guarda en la base de datos. El acceso requiere rol ADMIN."
+        summary = "Agregar producto al carrito",
+        description = "Crea un carrito (con usuario y producto asociado) y lo guarda en la base de datos. "
+            + "El acceso requiere rol ADMIN o CLIENTE."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -120,7 +124,6 @@ public class CarritoController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
         )}
     )
-    @PostMapping
     public CarritoResponse agregarProductoAlCarrito(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Carrito para guardar en base de datos",
@@ -133,9 +136,11 @@ public class CarritoController {
         return new CarritoResponse(carritoService.save(carrito));
     }
 
+    @PutMapping("/{id}")
     @Operation(
         summary = "Actualizar datos de carrito",
-        description = "Modifica los datos del carrito en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
+        description = "Modifica los datos del carrito en la base de datos con el ID ingresado. "
+            + "El acceso requiere rol ADMIN o CLIENTE."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -159,7 +164,6 @@ public class CarritoController {
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
         )}
     )
-    @PutMapping("/{id}")
     public ResponseEntity<CarritoResponse> actualizarCarrito(
         @Parameter(description = "ID del carrito modificado", required = true) @PathVariable Long id,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -179,8 +183,8 @@ public class CarritoController {
 
     @DeleteMapping("/{id}")
     @Operation(
-        summary = "Eliminar carrito",
-        description = "Elimina el carrito en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
+        summary = "Eliminar producto del carrito",
+        description = "Elimina el carrito en la base de datos con el ID ingresado. El acceso requiere rol ADMIN o CLIENTE."
     )
     @ApiResponses(value = {
         @ApiResponse(

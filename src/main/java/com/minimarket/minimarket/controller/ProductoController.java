@@ -141,11 +141,11 @@ public class ProductoController {
 
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(
         summary = "Actualizar datos de producto",
         description = "Modifica los datos del producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
     )
-    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200", description = "Producto actualizado exitosamente",
@@ -188,11 +188,11 @@ public class ProductoController {
 
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(
         summary = "Eliminar producto",
         description = "Elimina el producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
     )
-    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "204", description = "Producto eliminado exitosamente (No content)",
