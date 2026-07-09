@@ -67,7 +67,7 @@ public class InventarioServiceImpl implements InventarioService {
         // Mantener consistencia de stock en base de datos
         if (!esMismoProducto || !esMismaCantidad || !esMismoTipo){
             // Restaurar stock del producto antiguo
-            if(inventarioOriginal.getTipoMovimiento().equals("Entrada")){
+            if (inventarioOriginal.getTipoMovimiento().equals("Entrada")){
                 productoOriginal.setStock(productoOriginal.getStock() - inventarioOriginal.getCantidad());
             } else if(inventarioOriginal.getTipoMovimiento().equals("Salida")){
                 productoOriginal.setStock(productoOriginal.getStock() + inventarioOriginal.getCantidad());
@@ -80,9 +80,9 @@ public class InventarioServiceImpl implements InventarioService {
             }
 
             // Actualizar stock del producto asociado al inventario
-            if(inventario.getTipoMovimiento().equals("Entrada")){
+            if (inventario.getTipoMovimiento().equals("Entrada")){
                 producto.setStock(producto.getStock() + inventario.getCantidad());
-            } else if(inventarioOriginal.getTipoMovimiento().equals("Salida")){
+            } else if(inventario.getTipoMovimiento().equals("Salida")){
                 producto.setStock(producto.getStock() - inventario.getCantidad());
             } else {
                 throw new TipoMovimientoNoValidoException("Error al actualizar: " + MENSAJE_TIPO_NO_VALIDO);
