@@ -48,28 +48,26 @@ public class ProductoController {
     @GetMapping
     @Operation(
         summary = "Listar todos los productos",
-        description = "Retorna la lista completa de productos en la base de datos. El acceso es público."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Lista de productos obtenida exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse[].class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos de producto", operationId = "obtenerProductoPorId"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de producto", operationId = "actualizarProducto"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del producto", operationId = "eliminarProducto")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )
-        }
-    )
+        description = "Retorna la lista completa de productos en la base de datos. El acceso es público.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Lista de productos obtenida exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse[].class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos de producto", operationId = "obtenerProductoPorId"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de producto", operationId = "actualizarProducto"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del producto", operationId = "eliminarProducto")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )   
+        })
     public ResponseEntity<List<EntityModel<ProductoResponse>>> listarProductos() {
         List<Producto> productos = productoService.findAll();
 
@@ -92,35 +90,34 @@ public class ProductoController {
     @GetMapping("/{id}")
     @Operation(
         summary = "Buscar producto por ID",
-        description = "Busca un producto en la base de datos por su ID y retorna sus datos. El acceso es público."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Producto recuperado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del producto buscado", operationId = "obtenerProductoPorId"),
-                @Link(name = "listarProductos", description = "Enlace a la lista de todos los productos", operationId = "listarProductos"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de producto buscado", operationId = "actualizarProducto"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del producto buscado", operationId = "eliminarProducto")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Producto no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+        description = "Busca un producto en la base de datos por su ID y retorna sus datos. El acceso es público.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Producto recuperado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del producto buscado", operationId = "obtenerProductoPorId"),
+                    @Link(name = "listarProductos", description = "Enlace a la lista de todos los productos", operationId = "listarProductos"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de producto buscado", operationId = "actualizarProducto"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del producto buscado", operationId = "eliminarProducto")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Producto no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<ProductoResponse>> obtenerProductoPorId(
         @Parameter(description = "ID del producto buscado", required = true, example = "1") @PathVariable @PositiveOrZero Long id
@@ -143,38 +140,37 @@ public class ProductoController {
     //---------------------------------------------
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(
         summary = "Registrar producto",
-        description = "Crea un producto y lo guarda en la base de datos. El acceso requiere rol ADMIN."
-    )
-    @SecurityRequirement(name = "bearerAuth")
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Producto registrado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del producto creado", operationId = "obtenerProductoPorId"),
-                @Link(name = "listarProductos", description = "Enlace a la lista de todos los productos", operationId = "listarProductos"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de producto creado", operationId = "actualizarProducto"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del producto creado", operationId = "eliminarProducto")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Categoria asociada a producto no encontrada",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+        description = "Crea un producto y lo guarda en la base de datos. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Producto registrado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del producto creado", operationId = "obtenerProductoPorId"),
+                    @Link(name = "listarProductos", description = "Enlace a la lista de todos los productos", operationId = "listarProductos"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de producto creado", operationId = "actualizarProducto"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del producto creado", operationId = "eliminarProducto")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Categoria asociada a producto no encontrada",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<ProductoResponse>> guardarProducto(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -208,34 +204,33 @@ public class ProductoController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(
         summary = "Actualizar datos de producto",
-        description = "Modifica los datos del producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Producto actualizado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del producto actualizado", operationId = "obtenerProductoPorId"),
-                @Link(name = "listarProductos", description = "Enlace a la lista de todos los productos", operationId = "listarProductos"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del producto actualizado", operationId = "eliminarProducto")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Producto no encontrado o categoria no encontrada",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+        description = "Modifica los datos del producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Producto actualizado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductoResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del producto actualizado", operationId = "obtenerProductoPorId"),
+                    @Link(name = "listarProductos", description = "Enlace a la lista de todos los productos", operationId = "listarProductos"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del producto actualizado", operationId = "eliminarProducto")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Producto no encontrado o categoria no encontrada",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<ProductoResponse>> actualizarProducto(
         @Parameter(description = "ID del producto modificado", required = true, example = "1") @PathVariable Long id,
@@ -273,33 +268,32 @@ public class ProductoController {
     @SecurityRequirement(name = "bearerAuth")
     @Operation(
         summary = "Eliminar producto",
-        description = "Elimina el producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Producto eliminado exitosamente (No content)",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
-            links = {
-                @Link(name = "listarProductos", description = "Enlace a lista con todos los productos", operationId = "listarProductos"),
-                @Link(name = "guardarProducto", description = "Enlace para crear nuevo producto", operationId = "guardarProducto")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Producto no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+        description = "Elimina el producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Producto eliminado exitosamente (No content)",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
+                links = {
+                    @Link(name = "listarProductos", description = "Enlace a lista con todos los productos", operationId = "listarProductos"),
+                    @Link(name = "guardarProducto", description = "Enlace para crear nuevo producto", operationId = "guardarProducto")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Producto no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<Map<String, String>>> eliminarProducto(
         @Parameter(description = "ID del producto que se desea eliminar", required = true, example = "1") @PathVariable Long id

@@ -55,27 +55,26 @@ public class UsuarioController {
     @GetMapping
     @Operation(
         summary = "Listar todos los usuarios",
-        description = "Retorna la lista completa de usuarios en la base de datos. El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Lista de usuarios obtenida exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse[].class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos de usuario", operationId = "obtenerUsuarioPorId"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de usuario", operationId = "actualizarUsuario"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del usuario", operationId = "eliminarUsuario")
+        description = "Retorna la lista completa de usuarios en la base de datos. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Lista de usuarios obtenida exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse[].class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos de usuario", operationId = "obtenerUsuarioPorId"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de usuario", operationId = "actualizarUsuario"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del usuario", operationId = "eliminarUsuario")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )
             }
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )
-        }
     )
     public ResponseEntity<List<EntityModel<UsuarioResponse>>> listarUsuarios() {
         List<Usuario> usuarios = usuarioService.findAll();
@@ -99,35 +98,34 @@ public class UsuarioController {
     @Operation(
         summary = "Buscar usuario por ID",
         description = "Busca un usuario en la base de datos por su ID y retorna sus datos."
-            + " El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Usuario recuperado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del usuario buscado", operationId = "obtenerUsuarioPorId"),
-                @Link(name = "listarUsuarios", description = "Enlace a la lista de todos los usuarios", operationId = "listarUsuarios"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de usuario buscado", operationId = "actualizarUsuario"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del usuario buscado", operationId = "eliminarUsuario")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Usuario no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+            + " El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Usuario recuperado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del usuario buscado", operationId = "obtenerUsuarioPorId"),
+                    @Link(name = "listarUsuarios", description = "Enlace a la lista de todos los usuarios", operationId = "listarUsuarios"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de usuario buscado", operationId = "actualizarUsuario"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del usuario buscado", operationId = "eliminarUsuario")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Usuario no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<UsuarioResponse>> obtenerUsuarioPorId(
         @Parameter(description = "ID del usuario buscado", required = true, example = "1") @PathVariable Long id) {
@@ -151,35 +149,34 @@ public class UsuarioController {
     @PostMapping
     @Operation(
         summary = "Guardar usuario",
-        description = "Crea un usuario y lo guarda en la base de datos. El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Usuario registrado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del usuario creado", operationId = "obtenerUsuarioPorId"),
-                @Link(name = "listarUsuarios", description = "Enlace a la lista de todos los usuarios", operationId = "listarUsuarios"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de usuario creado", operationId = "actualizarUsuario"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del usuario creado", operationId = "eliminarUsuario")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Rol no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+        description = "Crea un usuario y lo guarda en la base de datos. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Usuario registrado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del usuario creado", operationId = "obtenerUsuarioPorId"),
+                    @Link(name = "listarUsuarios", description = "Enlace a la lista de todos los usuarios", operationId = "listarUsuarios"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de usuario creado", operationId = "actualizarUsuario"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del usuario creado", operationId = "eliminarUsuario")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Rol no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<UsuarioResponse>> guardarUsuario(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -211,34 +208,33 @@ public class UsuarioController {
     @PutMapping("/{id}")
     @Operation(
         summary = "Actualizar datos de usuario",
-        description = "Modifica los datos del usuario en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Usuario actualizado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del usuario actualizado", operationId = "obtenerUsuarioPorId"),
-                @Link(name = "listarUsuarios", description = "Enlace a la lista de todos los usuarios", operationId = "listarUsuarios"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del usuario actualizado", operationId = "eliminarUsuario")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Usuario no encontrado o rol no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+        description = "Modifica los datos del usuario en la base de datos con el ID ingresado. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Usuario actualizado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del usuario actualizado", operationId = "obtenerUsuarioPorId"),
+                    @Link(name = "listarUsuarios", description = "Enlace a la lista de todos los usuarios", operationId = "listarUsuarios"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del usuario actualizado", operationId = "eliminarUsuario")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Usuario no encontrado o rol no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<UsuarioResponse>> actualizarUsuario(
         @Parameter(description = "ID del usuario que se desea actualizar", required = true, example = "1") @PathVariable Long id, 
@@ -273,33 +269,32 @@ public class UsuarioController {
     @DeleteMapping("/{id}")
     @Operation(
         summary = "Eliminar usuario",
-        description = "Elimina el usuario en la base de datos con el ID ingresado. El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Usuario eliminado exitosamente (No content)",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
-            links = {
-                @Link(name = "listarUsuarios", description = "Enlace a lista con todos los usuarios", operationId = "listarUsuarios"),
-                @Link(name = "guardarUsuario", description = "Enlace para crear nuevo usuario", operationId = "guardarUsuario")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Usuario no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+        description = "Elimina el usuario en la base de datos con el ID ingresado. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Usuario eliminado exitosamente (No content)",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
+                links = {
+                    @Link(name = "listarUsuarios", description = "Enlace a lista con todos los usuarios", operationId = "listarUsuarios"),
+                    @Link(name = "guardarUsuario", description = "Enlace para crear nuevo usuario", operationId = "guardarUsuario")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Usuario no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<Map<String, String>>> eliminarUsuario(
         @Parameter(description = "ID del usuario que se desea eliminar", required = true, example = "1") @PathVariable Long id) {

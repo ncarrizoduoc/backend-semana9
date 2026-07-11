@@ -55,27 +55,26 @@ public class InventarioController {
     @GetMapping
     @Operation(
         summary = "Listar todos los movimientos de inventario",
-        description = "Retorna la lista completa de movimientos de inventario en la base de datos. El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Lista de movimientos de inventario obtenida exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse[].class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos de movimiento de inventario", operationId = "obtenerMovimientoPorId"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de movimiento de inventario", operationId = "actualizarMovimiento"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento de inventario", operationId = "eliminarMovimiento")
+        description = "Retorna la lista completa de movimientos de inventario en la base de datos. El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Lista de movimientos de inventario obtenida exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse[].class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos de movimiento de inventario", operationId = "obtenerMovimientoPorId"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de movimiento de inventario", operationId = "actualizarMovimiento"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento de inventario", operationId = "eliminarMovimiento")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )
             }
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )
-        }
     )
     public ResponseEntity<List<EntityModel<InventarioResponse>>> listarMovimientosDeInventario() {
         List<Inventario> inventarios = inventarioService.findAll();
@@ -100,35 +99,34 @@ public class InventarioController {
     @Operation(
         summary = "Buscar movimiento de inventario por ID",
         description = "Busca un movimiento de inventario en la base de datos por su ID y retorna sus datos."
-            + " El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Movimiento de inventario recuperado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del movimiento buscado", operationId = "obtenerMovimientoPorId"),
-                @Link(name = "listarMovimientos", description = "Enlace a la lista de todos los movimientos de inventario", operationId = "listarMovimientosDeInventario"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de movimiento buscado", operationId = "actualizarMovimiento"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento buscado", operationId = "eliminarMovimiento")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Movimiento de inventario no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+            + " El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Movimiento de inventario recuperado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del movimiento buscado", operationId = "obtenerMovimientoPorId"),
+                    @Link(name = "listarMovimientos", description = "Enlace a la lista de todos los movimientos de inventario", operationId = "listarMovimientosDeInventario"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de movimiento buscado", operationId = "actualizarMovimiento"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento buscado", operationId = "eliminarMovimiento")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Movimiento de inventario no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<InventarioResponse>> obtenerMovimientoPorId(
         @Parameter(description = "ID del movimiento de inventario buscado", required = true, example = "1") @PathVariable Long id
@@ -154,35 +152,34 @@ public class InventarioController {
     @Operation(
         summary = "Registrar movimiento de inventario",
         description = "Crea un movimiento de inventario para un producto y lo guarda en la base de datos. "
-            + "El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Movimiento de inventario registrado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del movimiento creado", operationId = "obtenerMovimientoPorId"),
-                @Link(name = "listarMovimientos", description = "Enlace a la lista de todos los movimientos de inventario", operationId = "listarMovimientos"),
-                @Link(name = "actualizar", description = "Enlace a actualizacion de movimiento creado", operationId = "actualizarMovimiento"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento creado", operationId = "eliminarMovimiento")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Producto no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor (o stock de producto insuficiente)",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+            + "El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Movimiento de inventario registrado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del movimiento creado", operationId = "obtenerMovimientoPorId"),
+                    @Link(name = "listarMovimientos", description = "Enlace a la lista de todos los movimientos de inventario", operationId = "listarMovimientos"),
+                    @Link(name = "actualizar", description = "Enlace a actualizacion de movimiento creado", operationId = "actualizarMovimiento"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento creado", operationId = "eliminarMovimiento")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Producto no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor (o stock de producto insuficiente)",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<InventarioResponse>> registrarMovimiento(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -216,34 +213,33 @@ public class InventarioController {
     @Operation(
         summary = "Actualizar datos de movimiento de inventario",
         description = "Modifica los datos de un movimiento de inventario en la base de datos con el ID ingresado."
-            + " El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Movimiento de inventario actualizado exitosamente",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse.class)),
-            links = {
-                @Link(name = "self", description = "Enlace a datos del movimiento actualizado", operationId = "obtenerMovimientoPorId"),
-                @Link(name = "listarMovimientos", description = "Enlace a la lista de todos los movimientos de inventario", operationId = "listarMovimientos"),
-                @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento actualizado", operationId = "eliminarMovimiento")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Movimiento de inventario o producto no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor (o stock de producto insuficiente)",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+            + " El acceso requiere rol ADMIN.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200", description = "Movimiento de inventario actualizado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = InventarioResponse.class)),
+                links = {
+                    @Link(name = "self", description = "Enlace a datos del movimiento actualizado", operationId = "obtenerMovimientoPorId"),
+                    @Link(name = "listarMovimientos", description = "Enlace a la lista de todos los movimientos de inventario", operationId = "listarMovimientos"),
+                    @Link(name = "eliminar", description = "Enlace a eliminacion del movimiento actualizado", operationId = "eliminarMovimiento")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Movimiento de inventario o producto no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor (o stock de producto insuficiente)",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<InventarioResponse>> actualizarMovimiento(
         @Parameter(
@@ -285,33 +281,32 @@ public class InventarioController {
     @Operation(
         summary = "Eliminar movimiento de inventario",
         description = "Elimina el movimiento de inventario en la base de datos con el ID ingresado. "
-            + "El acceso requiere rol ADMIN."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200", description = "Movimiento de inventario eliminado exitosamente (No content)",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
-            links = {
-                @Link(name = "listarMovimientos", description = "Enlace a lista con todos los movimientos de inventario", operationId = "listarMovimientosDeInventario"),
-                @Link(name = "guardarMovimiento", description = "Enlace para crear nuevo movimiento de inventario", operationId = "registrarMovimiento")
-            }
-        ),
-        @ApiResponse(
-            responseCode = "400", description = "Solicitud incorrecta",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403", description = "Prohibido",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "404", description = "Movimiento de inventario no encontrado",
-            content = @Content(schema = @Schema(hidden = true))
-        ),
-        @ApiResponse(
-            responseCode = "500", description = "Error interno del servidor (o stock de producto insuficiente)",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-        )}
+            + "El acceso requiere rol ADMIN.",
+        responses = {
+                @ApiResponse(
+                responseCode = "200", description = "Movimiento de inventario eliminado exitosamente (No content)",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
+                links = {
+                    @Link(name = "listarMovimientos", description = "Enlace a lista con todos los movimientos de inventario", operationId = "listarMovimientosDeInventario"),
+                    @Link(name = "guardarMovimiento", description = "Enlace para crear nuevo movimiento de inventario", operationId = "registrarMovimiento")
+                }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "403", description = "Prohibido",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "404", description = "Movimiento de inventario no encontrado",
+                content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                responseCode = "500", description = "Error interno del servidor (o stock de producto insuficiente)",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )}
     )
     public ResponseEntity<EntityModel<Map<String, String>>> eliminarMovimiento(
         @Parameter(
