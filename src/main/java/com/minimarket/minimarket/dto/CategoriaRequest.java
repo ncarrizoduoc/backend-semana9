@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "DTO para ingresar objetos Categoria")
 public class CategoriaRequest {
-    @Schema(description = "ID de la categoria")
-    @NotNull(message = "Debe ingresar un ID para la categoria")
+    
+    @Schema(description = "ID de la categoria", example = "0")
     private Long id;
     
-    @Schema(description = "Nombre de la categoria")
+    @Schema(description = "Nombre de la categoria", example = "Menaje")
     @NotNull(message = "Debe ingresar un nombre para la categoria")
     @NotBlank(message = "El nombre de la categoria no puede ser un texto en blanco")
     private String nombre;
