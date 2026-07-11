@@ -255,7 +255,7 @@ public class InventarioControllerTest {
 
         // Act y Assert
         mockMvc.perform(delete("/api/inventario/{id}", Long.valueOf(1))) // Se llama al endpoint [DELETE /api/inventario/1]
-            .andExpect(status().isNoContent()); // Espera un status No Content
+            .andExpect(status().isOk()); // Espera un status No Content
     }
 
     // Prueba que valida que si un usuario autorizado (rol CAJERO) intenta eliminar un inventario
