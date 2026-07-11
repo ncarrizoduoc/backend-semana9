@@ -272,16 +272,16 @@ public class CarritoController {
         description = "Elimina el carrito en la base de datos con el ID ingresado. El acceso requiere rol ADMIN o CLIENTE.",
         responses = {
             @ApiResponse(
-                responseCode = "200", description = "Carrito eliminado exitosamente (No content)",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class))
-            ),
-            @ApiResponse(
-                responseCode = "400", description = "Solicitud incorrecta",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class)),
+                responseCode = "200", description = "Carrito eliminado exitosamente",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
                 links = {
                     @Link(name = "listarCarritos", description = "Enlace a lista con todos los productos", operationId = "listarCarrito"),
                     @Link(name = "guardarCarrito", description = "Enlace para crear nuevo producto", operationId = "agregarProductoAlCarrito")
                 }
+            ),
+            @ApiResponse(
+                responseCode = "400", description = "Solicitud incorrecta",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestResponse.class))
             ),
             @ApiResponse(
                 responseCode = "403", description = "Prohibido",

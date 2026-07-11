@@ -272,7 +272,7 @@ public class UsuarioController {
         description = "Elimina el usuario en la base de datos con el ID ingresado. El acceso requiere rol ADMIN.",
         responses = {
             @ApiResponse(
-                responseCode = "200", description = "Usuario eliminado exitosamente (No content)",
+                responseCode = "200", description = "Usuario eliminado exitosamente",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
                 links = {
                     @Link(name = "listarUsuarios", description = "Enlace a lista con todos los usuarios", operationId = "listarUsuarios"),

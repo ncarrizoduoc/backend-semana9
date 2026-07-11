@@ -271,7 +271,7 @@ public class ProductoController {
         description = "Elimina el producto en la base de datos con el ID ingresado. El acceso requiere rol ADMIN.",
         responses = {
             @ApiResponse(
-                responseCode = "200", description = "Producto eliminado exitosamente (No content)",
+                responseCode = "200", description = "Producto eliminado exitosamente",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
                 links = {
                     @Link(name = "listarProductos", description = "Enlace a lista con todos los productos", operationId = "listarProductos"),

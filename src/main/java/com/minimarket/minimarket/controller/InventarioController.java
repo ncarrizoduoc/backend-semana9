@@ -284,7 +284,7 @@ public class InventarioController {
             + "El acceso requiere rol ADMIN.",
         responses = {
                 @ApiResponse(
-                responseCode = "200", description = "Movimiento de inventario eliminado exitosamente (No content)",
+                responseCode = "200", description = "Movimiento de inventario eliminado exitosamente",
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
                 links = {
                     @Link(name = "listarMovimientos", description = "Enlace a lista con todos los movimientos de inventario", operationId = "listarMovimientosDeInventario"),
