@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "DTO de respuesta para objetos Categoria")
 public class CategoriaResponse {
-    @Schema(description = "ID de la categoria")
+    @Schema(description = "ID de la categoria", example = "3")
     private Long id;
     
-    @Schema(description = "Nombre de la categoria")
+    @Schema(description = "Nombre de la categoria", example = "Bebestibles")
     private String nombre;
 
     public CategoriaResponse(Categoria categoria){

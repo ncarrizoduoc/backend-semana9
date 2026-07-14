@@ -1,6 +1,5 @@
 package com.minimarket.minimarket.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;

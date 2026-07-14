@@ -3,8 +3,11 @@ package com.minimarket.minimarket.dto;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.hibernate.annotations.Array;
+
 import com.minimarket.minimarket.entity.Usuario;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,11 +22,17 @@ atributo password, correspondiente a la contrasena del usuario.
 @AllArgsConstructor
 @Schema(description = "DTO de respuesta para objetos Usuario")
 public class UsuarioResponse {
-    @Schema(description = "ID del usuario")
+    @Schema(description = "ID del usuario", example = "4")
     private Long id;
-    @Schema(description = "Nombre de usuario")
+    @Schema(description = "Nombre de usuario", example = "UsuarioEjemplo")
     private String username;
-    @Schema(description = "Rol(es) del usuario")
+    
+    @ArraySchema
+        (schema = @Schema(
+            description = "Rol(es) del usuario",
+            example = "[\"CLIENTE\", \"ADMIN\"]"
+        )
+    )
     private Set<String> roles;
 
     // Constructor a partir de usuario

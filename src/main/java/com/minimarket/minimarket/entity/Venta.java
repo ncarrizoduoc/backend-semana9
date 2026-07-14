@@ -27,7 +27,6 @@ public class Venta {
     @Column(nullable = false)
     private Date fecha;
 
-    @NotNull(message = "Debe ingresar al menos un detalle de venta")
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
     private List<DetalleVenta> detalles;
 

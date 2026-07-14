@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Date;
 
-import static com.minimarket.minimarket.config.CONSTANTS.*;
+import static com.minimarket.minimarket.config.FechaUtil.*;
 
 @Data
 @NoArgsConstructor

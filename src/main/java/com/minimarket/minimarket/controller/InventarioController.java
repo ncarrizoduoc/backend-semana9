@@ -1,11 +1,8 @@
 package com.minimarket.minimarket.controller;
 
-import com.minimarket.minimarket.dto.CarritoRequest;
-import com.minimarket.minimarket.dto.CarritoResponse;
 import com.minimarket.minimarket.dto.EliminadoMessageDTO;
 import com.minimarket.minimarket.dto.InventarioRequest;
 import com.minimarket.minimarket.dto.InventarioResponse;
-import com.minimarket.minimarket.entity.Carrito;
 import com.minimarket.minimarket.entity.Inventario;
 import com.minimarket.minimarket.exception.ErrorResponse;
 import com.minimarket.minimarket.mapper.InventarioRequestMapper;
@@ -18,7 +15,6 @@ import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -192,7 +188,7 @@ public class InventarioController {
         Inventario inventario = requestMapper.toInventario(request);
         inventario.setId(null);
         
-        //Guardar carrito
+        //Guardar inventario
         Inventario creado = inventarioService.save(inventario);
         InventarioResponse response = new InventarioResponse(creado);
 

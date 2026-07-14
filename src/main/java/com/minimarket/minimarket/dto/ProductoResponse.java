@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "DTO de respuesta para objetos Producto")
 public class ProductoResponse {
-    @Schema(description = "ID del producto")
+    @Schema(description = "ID del producto", example = "7")
     private Long id;
-    @Schema(description = "Nombre del producto")
+    @Schema(description = "Nombre del producto", example = "Agua mineral")
     private String nombre;
-    @Schema(description = "Precio del producto")
+    @Schema(description = "Precio del producto", example = "1990.0")
     private Double precio;
-    @Schema(description = "Stock disponible del producto")
+    @Schema(description = "Stock disponible del producto", example = "150")
     private Integer stock;
     @Schema(description = "Categoria del producto")
     private CategoriaResponse categoria;
