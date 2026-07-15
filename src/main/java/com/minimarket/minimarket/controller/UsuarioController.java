@@ -1,6 +1,5 @@
 package com.minimarket.minimarket.controller;
 
-import com.minimarket.minimarket.dto.EliminadoMessageDTO;
 import com.minimarket.minimarket.dto.UsuarioRequest;
 import com.minimarket.minimarket.dto.UsuarioResponse;
 import com.minimarket.minimarket.entity.Usuario;
@@ -13,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -272,7 +272,18 @@ public class UsuarioController {
         responses = {
             @ApiResponse(
                 responseCode = "200", description = "Usuario eliminado exitosamente",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
+                content = @Content(
+                    mediaType = "application/json", 
+                    examples = @ExampleObject(
+                        name = "Confirmacion de eliminacion",
+                        description = "Respuesta con mensaje que confirma la eliminacion del usuario",
+                        value = """
+                                {
+                                    "message": "Usuario eliminado exitosamente"
+                                }
+                                """
+                    )
+                ),
                 links = {
                     @Link(name = "listarUsuarios", description = "Enlace a lista con todos los usuarios", operationId = "listarUsuarios"),
                     @Link(name = "guardarUsuario", description = "Enlace para crear nuevo usuario", operationId = "guardarUsuario")

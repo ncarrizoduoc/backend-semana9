@@ -1,6 +1,5 @@
 package com.minimarket.minimarket.controller;
 
-import com.minimarket.minimarket.dto.EliminadoMessageDTO;
 import com.minimarket.minimarket.dto.InventarioRequest;
 import com.minimarket.minimarket.dto.InventarioResponse;
 import com.minimarket.minimarket.entity.Inventario;
@@ -13,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -208,7 +208,7 @@ public class InventarioController {
     @PutMapping("/{id}")
     @Operation(
         summary = "Actualizar datos de movimiento de inventario",
-        description = "Modifica los datos de un movimiento de inventario en la base de datos con el ID ingresado."
+        description = "Modifica los datos del movimiento de inventario en la base de datos con el ID ingresado."
             + " El acceso requiere rol ADMIN.",
         responses = {
             @ApiResponse(
@@ -281,7 +281,18 @@ public class InventarioController {
         responses = {
                 @ApiResponse(
                 responseCode = "200", description = "Movimiento de inventario eliminado exitosamente",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
+                content = @Content(
+                    mediaType = "application/json", 
+                    examples = @ExampleObject(
+                        name = "Confirmacion de eliminacion",
+                        description = "Respuesta con mensaje que confirma la eliminacion del movimiento de inventario",
+                        value = """
+                                {
+                                    "message": "Movimiento de inventario eliminado exitosamente"
+                                }
+                                """
+                    )
+                ),
                 links = {
                     @Link(name = "listarMovimientos", description = "Enlace a lista con todos los movimientos de inventario", operationId = "listarMovimientosDeInventario"),
                     @Link(name = "guardarMovimiento", description = "Enlace para crear nuevo movimiento de inventario", operationId = "registrarMovimiento")
@@ -317,7 +328,7 @@ public class InventarioController {
             inventarioService.deleteById(id);
             
             EntityModel<Map<String, String>> responseModel = EntityModel.of(
-                Map.of("message", "Inventario eliminado exitosamente"),
+                Map.of("message", "Movimiento de inventario eliminado exitosamente"),
                 linkTo(methodOn(InventarioController.class).listarMovimientosDeInventario()).withRel("listarMovimientos"),
                 linkTo(methodOn(InventarioController.class).registrarMovimiento(new InventarioRequest())).withRel("guardarMovimiento")
             );

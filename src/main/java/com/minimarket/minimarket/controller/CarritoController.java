@@ -2,7 +2,6 @@ package com.minimarket.minimarket.controller;
 
 import com.minimarket.minimarket.dto.CarritoRequest;
 import com.minimarket.minimarket.dto.CarritoResponse;
-import com.minimarket.minimarket.dto.EliminadoMessageDTO;
 import com.minimarket.minimarket.entity.Carrito;
 import com.minimarket.minimarket.exception.ErrorResponse;
 import com.minimarket.minimarket.mapper.CarritoRequestMapper;
@@ -13,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -271,8 +271,20 @@ public class CarritoController {
         description = "Elimina el carrito en la base de datos con el ID ingresado. El acceso requiere rol ADMIN o CLIENTE.",
         responses = {
             @ApiResponse(
-                responseCode = "200", description = "Carrito eliminado exitosamente",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
+                responseCode = "200",
+                description = "Carrito eliminado exitosamente",
+                content = @Content(
+                    mediaType = "application/json", 
+                    examples = @ExampleObject(
+                        name = "Confirmacion de eliminacion",
+                        description = "Respuesta con mensaje que confirma la eliminacion del carrito",
+                        value = """
+                                {
+                                    "message": "Carrito eliminado exitosamente"
+                                }
+                                """
+                    )
+                ),
                 links = {
                     @Link(name = "listarCarritos", description = "Enlace a lista con todos los productos", operationId = "listarCarrito"),
                     @Link(name = "guardarCarrito", description = "Enlace para crear nuevo producto", operationId = "agregarProductoAlCarrito")

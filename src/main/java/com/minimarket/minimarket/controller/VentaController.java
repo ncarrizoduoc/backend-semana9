@@ -160,7 +160,12 @@ public class VentaController {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )}
     )
-    public ResponseEntity<EntityModel<VentaResponse>> guardarVenta(@Valid @RequestBody VentaRequest request) {
+    public ResponseEntity<EntityModel<VentaResponse>> guardarVenta(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Venta para guardar en base de datos", required = true
+        )
+        @Valid @RequestBody VentaRequest request
+    ) {
         Venta venta = requestMapper.toVenta(request);
         venta.setId(null);
         

@@ -1,6 +1,5 @@
 package com.minimarket.minimarket.controller;
 
-import com.minimarket.minimarket.dto.EliminadoMessageDTO;
 import com.minimarket.minimarket.dto.ProductoRequest;
 import com.minimarket.minimarket.dto.ProductoResponse;
 import com.minimarket.minimarket.entity.Producto;
@@ -13,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -271,7 +271,18 @@ public class ProductoController {
         responses = {
             @ApiResponse(
                 responseCode = "200", description = "Producto eliminado exitosamente",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = EliminadoMessageDTO.class)),
+                content = @Content(
+                    mediaType = "application/json", 
+                    examples = @ExampleObject(
+                        name = "Confirmacion de eliminacion",
+                        description = "Respuesta con mensaje que confirma la eliminacion del producto",
+                        value = """
+                                {
+                                    "message": "Producto eliminado exitosamente"
+                                }
+                                """
+                    )
+                ),
                 links = {
                     @Link(name = "listarProductos", description = "Enlace a lista con todos los productos", operationId = "listarProductos"),
                     @Link(name = "guardarProducto", description = "Enlace para crear nuevo producto", operationId = "guardarProducto")
