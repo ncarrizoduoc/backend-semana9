@@ -27,13 +27,23 @@ public class VentaResponse {
     @Schema(description = "Detalles de venta asociados a la venta")
     private List<DetalleVentaResponse> detalles;
 
+    @Schema(description = "Monto total de la venta", example = "29.980.0")
+    private Double total;
+
     public VentaResponse(Venta venta){
         id = venta.getId();
         usuario = new UsuarioResponse(venta.getUsuario());
         fecha = dateToString(venta.getFecha());
         detalles = new ArrayList<>();
+        total = 0.0;
+        
+        Double monto;
         for (DetalleVenta detalle : venta.getDetalles()){
             detalles.add(new DetalleVentaResponse(detalle));
+
+            // Se suma el total parcial de cada producto al total de la venta
+            monto = detalle.getPrecio() * detalle.getCantidad();
+            total += monto;
         }
     }
 
