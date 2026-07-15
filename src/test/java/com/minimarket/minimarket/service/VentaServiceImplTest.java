@@ -65,7 +65,7 @@ public class VentaServiceImplTest {
         detalle = DetalleVenta.builder()
             .id(Long.valueOf(1))
             .venta(null)
-            .producto(new Producto())
+            .producto(producto)
             .cantidad(10)
             .build();
 
