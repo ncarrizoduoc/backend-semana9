@@ -76,6 +76,7 @@ public class DetalleVentaServiceImplTest {
         detalle = null;
     }
 
+    // Prueba que verifica que findAll() retorne una lista con todos los detalles de venta
     @Test
     public void findAllRetornaTodosLosDetallesTest(){
         // Arrange
@@ -93,6 +94,7 @@ public class DetalleVentaServiceImplTest {
         verify(detalleRepo).findAll(); // Verifica que se haya llamado al metodo findAll de DetalleVentaRepository
     }
 
+    // Prueba que valida que findById retorne un detalle de venta buscado por su ID, si existe
     @Test
     public void findByIdRetornaDetalleSiExisteTest(){
         // Arrange
@@ -109,8 +111,9 @@ public class DetalleVentaServiceImplTest {
 
     }
 
+    // Prueba que valida que findById retorne un Optional vacio si el detalle de venta buscado por ID no existe
     @Test
-    public void findByIdRetornaNullSiNoExisteTest(){
+    public void findByIdRetornaEmptySiNoExisteTest(){
         // Arrange
         when(detalleRepo.findById(any(Long.class))).thenReturn(Optional.empty());
 
@@ -123,6 +126,7 @@ public class DetalleVentaServiceImplTest {
 
     }
 
+    // Prueba que valida que save() guarde un detalle de venta si hay stock suficiente del producto
     @Test
     public void saveGuardaDetalleSiHayStockTest(){
         // Arrange
@@ -143,6 +147,7 @@ public class DetalleVentaServiceImplTest {
 
     }
 
+    // Prueba que valida que save() lance una excepcion si el producto asociado al detalle no tiene stock suficiente
     @Test
     public void saveLanzaExcepcionSiNoHayStockTest(){
         // Arrange
@@ -158,6 +163,7 @@ public class DetalleVentaServiceImplTest {
         }
     }
 
+    // Prueba que valida que deleteById() elimine un detalle de venta por ID, si existe
     @Test
     public void deleteByIdEliminaDetalleSiExisteTest(){
         // Arrange
@@ -168,10 +174,11 @@ public class DetalleVentaServiceImplTest {
 
         // Assert
         verify(detalleRepo, times(1)).deleteById(Long.valueOf(1));
-        assertEquals(producto.getStock(), 15);
+        assertEquals(producto.getStock(), 15); // Verifica que se reponga el stock del producto
 
     }
 
+    // Prueba que valida que deleteById() lance una excepcion si no existe un detalle con el ID ingresado
     @Test
     public void deleteByIdLanzaExcepcionSiNoExisteTest(){
         // Arrange
@@ -187,6 +194,7 @@ public class DetalleVentaServiceImplTest {
         }
     }
 
+    // Clase anidada para pruebas del metodo update(). Requieren un setUp() adicional
     @Nested
     class UpdateTests{
         private Producto productoOriginal;
@@ -217,6 +225,8 @@ public class DetalleVentaServiceImplTest {
             original = null;
         }
 
+        // Prueba que valida que update() lance una excepcion si el detalle con el ID ingresado
+        // no existe en la base de datos
         @Test
         public void updateLanzaExcepcionSiDetalleNoExiste(){
             // Arrange
@@ -231,6 +241,8 @@ public class DetalleVentaServiceImplTest {
             }
         }
 
+        // Prueba que valida que update() actualice un detalle de venta cuando cambia solo la cantidad.
+        // Debe actualizar tambien el stock del producto
         @Test
         public void updateCambiaSoloCantidadTest(){
             // Arrange
@@ -245,12 +257,14 @@ public class DetalleVentaServiceImplTest {
 
             assertEquals(actualizado, detalle);
             assertEquals(actualizado.getProducto(), producto);
-            assertEquals(producto.getStock(), 8);
+            assertEquals(producto.getStock(), 8); // Se verifica el stock del producto
             verify(detalleRepo, times(1)).findById(detalle.getId());
             verify(detalleRepo, times(1)).save(detalle);
 
         }
 
+        // Prueba que valida que update() actualice un detalle cuando cambia solo el producto asociado.
+        // Valida que actualice el stock del producto original y del producto nuevo
         @Test
         public void updateCambiaSoloProductoTest(){
             // Arrange
@@ -273,6 +287,8 @@ public class DetalleVentaServiceImplTest {
 
         }
 
+        // Prueba que valida que update actualice un detalle cuando cambia el producto asociado y la cantidad.
+        // Debe actualizar tambien los stocks del producto original y del producto nuevo
         @Test
         public void updateCambiaProductoYCantidadTest(){
             // Arrange
@@ -296,6 +312,8 @@ public class DetalleVentaServiceImplTest {
 
         }
 
+        // Prueba que valida que update() lance una excepcion si no hay stock del producto
+        // suficiente para la nueva cantidad 
         @Test
         public void updateLanzaExcepcionSiNoHayStock(){
             when(detalleRepo.findById(any(Long.class))).thenReturn(Optional.of(original));

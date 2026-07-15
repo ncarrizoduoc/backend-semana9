@@ -87,7 +87,7 @@ public class VentaServiceImplTest {
     }
 
     
-    // Metodo que verifica que el metodo findAll retorna una lista con todas las ventas en la base de datos
+    // Prueba que verifica que el metodo findAll retorna una lista con todas las ventas en la base de datos
     @Test
     public void findAllRetornaTodasLasVentasTest(){
         // Arrange
@@ -156,6 +156,7 @@ public class VentaServiceImplTest {
 
     }
 
+    // Prueba que verifica que el metodo save() retorne la venta guardada
     @Test
     public void saveVentaTest(){
         // Arrange
