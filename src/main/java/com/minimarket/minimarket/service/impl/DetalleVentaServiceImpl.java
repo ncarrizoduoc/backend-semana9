@@ -71,6 +71,7 @@ public class DetalleVentaServiceImpl implements DetalleVentaService {
         }
         
         productoNuevo.setStock(productoNuevo.getStock() - detalle.getCantidad());
+        validarStock(productoNuevo);
 
         return detalleVentaRepository.save(detalle);
         
@@ -80,7 +81,7 @@ public class DetalleVentaServiceImpl implements DetalleVentaService {
     @Transactional
     public void deleteById(Long id) {
         DetalleVenta detalle = detalleVentaRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("No existe el detalle de venta con el ID ingresado"));
+            .orElseThrow(() -> new ResourceNotFoundException("No existe el detalle de venta con ID: " + id));
 
         // Actualizar stock del producto
         Producto producto = detalle.getProducto();
