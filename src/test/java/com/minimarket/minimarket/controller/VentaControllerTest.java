@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.hasSize;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,15 +28,21 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.minimarket.minimarket.dto.VentaRequest;
+import com.minimarket.minimarket.entity.Categoria;
 import com.minimarket.minimarket.entity.DetalleVenta;
+import com.minimarket.minimarket.entity.Producto;
 import com.minimarket.minimarket.entity.Rol;
 import com.minimarket.minimarket.entity.Usuario;
 import com.minimarket.minimarket.entity.Venta;
+import com.minimarket.minimarket.mapper.VentaRequestMapper;
 import com.minimarket.minimarket.security.config.SecurityConfig;
 import com.minimarket.minimarket.security.monitor.SuspiciousActivityService;
 import com.minimarket.minimarket.security.service.CustomUserDetailsService;
 import com.minimarket.minimarket.security.util.JwtUtil;
 import com.minimarket.minimarket.service.impl.VentaServiceImpl;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 
 @WebMvcTest(VentaController.class)
@@ -58,43 +64,96 @@ public class VentaControllerTest {
     @MockitoBean
     private CustomUserDetailsService customUserDetailsService;
 
+    @MockitoBean
+    private VentaRequestMapper requestMapper;
+
     // Declaracion de objetos
-    Rol rol;
-    Set<Rol> roles;
-    Usuario usuario;
-    List<DetalleVenta> detalles;
+    private Rol rol;
+    private Usuario usuario;
+    private DetalleVenta detalle;
+    private Categoria categoria;
+    private Producto producto;
     private Venta venta;
+    private VentaRequest request;
 
     // Se crean objetos (de clase Venta y otros) para probar las llamadas a endpoints
     @BeforeEach
     void setUp(){
         // Rol
-        rol = new Rol(Long.valueOf(1), "CLIENTE", new HashSet<Usuario>());
-        roles = new HashSet<>(Set.of(rol));
+        rol = Rol.builder()
+            .id(Long.valueOf(1))
+            .nombre("CLIENTE")
+            .usuarios(new HashSet<Usuario>())
+            .build();
+
         //Usuario
-        usuario = new Usuario(Long.valueOf(1), "UsuarioPrueba", "ContrasenaPrueba", roles);
-        // Lista de detalles de ventas (vacia)
-        detalles = new ArrayList<>();
-        //Objeto Venta (para probar endpoint POST)
-        venta = new Venta(Long.valueOf(1), usuario, Date.valueOf("2026-12-30"), detalles);
+        usuario = Usuario.builder()
+            .id(Long.valueOf(5))
+            .username("UsuarioPrueba")
+            .password("ContrasenaPrueba")
+            .roles(new HashSet<>(Set.of(rol)))
+            .build();
+
+        // Venta request (DTO para solicitudes)
+        request = VentaRequest.builder()
+            .id(Long.valueOf(1))
+            .usuarioId(Long.valueOf(5))
+            .fecha(new Date())
+            .build();
+
+        categoria = Categoria.builder()
+            .id(Long.valueOf(1))
+            .nombre("Abarrotes")
+            .productos(new ArrayList<Producto>())
+            .build();
+        
+        producto = Producto.builder()
+            .id(Long.valueOf(1))
+            .nombre("Arroz")
+            .precio(2690.0)
+            .stock(20)
+            .categoria(categoria)
+            .build();
+
+        // Detalle de venta
+        detalle = DetalleVenta.builder()
+            .id(Long.valueOf(1))
+            .venta(venta)
+            .producto(producto)
+            .cantidad(10)
+            .precio(990.0)
+            .build();
+
+        // Venta
+        venta = Venta.builder()
+            .id(Long.valueOf(1))
+            .usuario(usuario)
+            .fecha(new Date())
+            .detalles(List.of(detalle))
+            .build();
+        
+        detalle.setVenta(venta);
     }
 
     // Despues de cada prueba, se asigna null a los objetos para liberar espacio
     @AfterEach
     void tearDown(){
         rol = null;
-        roles = null;
         usuario = null;
-        detalles = null;
+        detalle = null;
+        categoria = null;
+        producto = null;
         venta = null;
+        request = null;
     }
 
     // Prueba que verifica que un usuario con rol CAJERO pueda acceder al endpoint [POST /api/ventas] y
     // guardar una venta (debe incluir un RequestBody con una venta valida)
     @Test
     @WithMockUser(authorities = {"CAJERO"})
-    public void cajeroPuedeGenerarVentaTest() throws Exception{
+    public void cajeroPuedeGuardarVentaTest() throws Exception{
         // Arrange
+        when(requestMapper.toVenta(any(VentaRequest.class))).thenReturn(venta);
         when(ventaService.save(any(Venta.class))).thenAnswer(invocation ->{
             return invocation.getArgument(0);
         });
@@ -102,10 +161,12 @@ public class VentaControllerTest {
         // Act y Assert
         mockMvc.perform(post("/api/ventas") // Se llama al endpoint [POST /api/ventas]
             .contentType(MediaType.APPLICATION_JSON) // Se envia un body formato Json
-            .content(new ObjectMapper().writeValueAsString(venta))) // El body contiene un objeto Venta valido
+            .content(new ObjectMapper().writeValueAsString(request))) // El body contiene un objeto VentaRequest valido
+            .andDo(print())
             .andExpect(status().isOk()) // Verificar que retorna un status OK
-            .andExpect(jsonPath("$.id").value(Long.valueOf(1))) // Verificar que el ID de la venta sea el esperado
-            .andExpect(jsonPath("$.detalles").value(detalles)); // Verificar que los detalles de venta sean los esperados
+            .andExpect(jsonPath("$.usuario.id").value(Long.valueOf(5))) // Verifica que el ID del usuario de la venta sea el esperado
+            .andExpect(jsonPath("$.detalles[0].producto.nombre").value("Arroz")) // Verifica el nombre del producto
+            .andExpect(jsonPath("$.total").value(9900.0)); // Valida el calculo del total
     }
 
     // Prueba que verifica que un usuario no autorizado (sin rol CAJERO) no pueda acceder
@@ -116,7 +177,7 @@ public class VentaControllerTest {
     public void usuarioNoAutorizadoNoPuedeGuardarVentaTest() throws Exception{
         mockMvc.perform(post("/api/ventas") // Se llama al endpoint [POST /api/ventas]
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(venta))) // El body contiene un objeto Venta valido
+            .content(new ObjectMapper().writeValueAsString(request))) // El body contiene un objeto Venta valido
             .andExpect(status().isForbidden()); // Espera un Status 403 (prohibido)
     }
 
@@ -188,11 +249,12 @@ public class VentaControllerTest {
     @Test
     @WithMockUser(authorities = {"CAJERO"})
     public void guardarVentaNoValidaLanzaErrorTest() throws Exception{
-        venta.setFecha(null); // Se asigna fecha null (que no esta permitido)
+        request.setFecha(null); // Se asigna fecha null (que no esta permitido)
 
         mockMvc.perform(post("/api/ventas")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(new ObjectMapper().writeValueAsString(venta)))
+            .content(new ObjectMapper().writeValueAsString(request)))
+            .andDo(print())
             .andExpect(status().isBadRequest()); // Se espera un status Bad Request
 
     }

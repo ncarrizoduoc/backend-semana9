@@ -216,7 +216,7 @@ public class ProductoControllerTest {
 
         // Act y Assert
         mockMvc.perform(delete("/api/productos/{id}", Long.valueOf(1))) // Se llama al endpoint [DELETE /api/productos/1]
-            .andExpect(status().isOk()); // Espera un status No Content
+            .andExpect(status().isOk()); // Espera un status Ok
     }
 
     // Prueba que valida que si un usuario autorizado (con rol ADMIN) intenta eliminar un producto
