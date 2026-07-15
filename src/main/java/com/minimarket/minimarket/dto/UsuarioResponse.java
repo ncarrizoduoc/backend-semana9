@@ -3,8 +3,6 @@ package com.minimarket.minimarket.dto;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.annotations.Array;
-
 import com.minimarket.minimarket.entity.Usuario;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;

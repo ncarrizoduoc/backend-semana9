@@ -29,6 +29,7 @@ public class ProductoRequest {
     private Double precio;
     
     @Schema(description = "Stock disponible del producto", example = "100")
+    @PositiveOrZero(message = "El stock del producto debe ser mayor o igual a 0")
     @NotNull(message = "Debe ingresar el stock del producto")
     private Integer stock;
     
