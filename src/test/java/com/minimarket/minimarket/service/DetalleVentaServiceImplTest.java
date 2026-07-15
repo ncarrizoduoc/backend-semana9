@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Answers.valueOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -151,7 +150,7 @@ public class DetalleVentaServiceImplTest {
 
         // Act
         try{
-            DetalleVenta creado = detalleService.save(detalle);
+            detalleService.save(detalle);
             fail("Se esperaba StockInsuficienteException");
         } catch(Exception e){
             assertEquals(e.getClass(), StockInsuficienteException.class);
