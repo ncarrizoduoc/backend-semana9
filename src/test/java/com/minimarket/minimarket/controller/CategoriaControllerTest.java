@@ -243,7 +243,7 @@ public class CategoriaControllerTest {
     @Test
     @WithMockUser(authorities = {"ADMIN"})
     public void guardarCategoriaNoValidoLanzaErrorTest() throws Exception{
-        request.setNombre(null); // Se asigna un numero negativo al precio (que no esta permitido)
+        request.setNombre(null); // Se asigna un nombre null a la categoria (que no esta permitido)
 
         mockMvc.perform(post("/api/categorias")
             .contentType(MediaType.APPLICATION_JSON)
@@ -259,7 +259,7 @@ public class CategoriaControllerTest {
     @Test
     @WithMockUser(authorities = {"ADMIN"})
     public void modificarCategoriaNoValidoLanzaErrorTest() throws Exception{
-        request.setNombre(""); // Se asigna un nombre en blanco al precio (que no esta permitido)
+        request.setNombre(""); // Se asigna un nombre en blanco a la categoria (que no esta permitido)
 
         mockMvc.perform(put("/api/categorias/{id}", Long.valueOf(1))
             .contentType(MediaType.APPLICATION_JSON)
